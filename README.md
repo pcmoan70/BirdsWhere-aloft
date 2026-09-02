@@ -50,7 +50,8 @@ a 1 km line during the phase; most migration is nocturnal.
 
 ### Particle traces
 - Passive tracers riding the migration-band wind — where the wind alone would carry
-  a bird. **Click** to drop a puff; **right-click** to seed the **Nearctic**
+  a bird. **Click** to drop a **purple, persistent swarm** (no lifetime) you can
+  follow indefinitely; **right-click** to seed the **Nearctic**
   departure line (American Atlantic coast, Miami→Labrador, teal). Enable the
   **European departure line** to also seed the Atlantic-facing European seaboard
   (North Cape→Morocco, amber) on right-click.

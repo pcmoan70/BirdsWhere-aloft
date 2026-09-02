@@ -272,15 +272,16 @@ document.documentElement.classList.add("railoff","tloff");
         you can see the systems that push birds around &mdash; zoom out with
         <kbd>&minus;</kbd>.</p>
 
-      <p><b>Particle traces</b> (mint trails, on by default) are passive tracers
-        riding the migration-band wind &mdash; where the wind alone would carry a
-        bird. <b>Click</b> the map to drop a puff, <b>right-click</b> to seed a
-        line along the American Atlantic coast, Miami to northern Labrador.
-        They advect <b>in lockstep with the
-        timeline</b>: step, scrub or press play and they fly (one phase &asymp;
-        3.4&nbsp;h of transport, dispersing as they go, for up to ~8 simulated
-        days); a still timeline is a still picture, and scrubbing backwards resets
-        them. Compare a trace with the arrows to separate wind drift from the
+      <p><b>Particle traces</b> are passive tracers riding the migration-band wind
+        &mdash; where the wind alone would carry a bird. <b>Click</b> the map to
+        drop a <span style="color:#A855F7">purple</span> swarm that <b>persists</b>
+        (no lifetime), to follow a release for as long as you like;
+        <b>right-click</b> seeds a <span style="color:#7FD8C4">teal</span> line
+        along the American Atlantic coast, Miami to northern Labrador. They advect
+        <b>in lockstep with the timeline</b>: step, scrub or press play and they fly
+        (one phase &asymp; 3.4&nbsp;h of transport, dispersing as they go &mdash;
+        seeded lines fade over days, the purple swarms do not); a still timeline is
+        a still picture, and scrubbing backwards resets them. Compare a trace with the arrows to separate wind drift from the
         birds&rsquo; own effort.</p>
 
       <p><b>The background wash</b> (when Breeding-species turnover is on) is a
@@ -345,7 +346,7 @@ document.documentElement.classList.add("railoff","tloff");
       </div>
       <label class="wxchk"><input type="checkbox" id="wxfront" checked> Precip front</label>
       <label class="wxchk"><input type="checkbox" id="wxfrost" checked> Ground frost</label>
-      <label class="wxchk"><input type="checkbox" id="wxptcl" checked> Particle traces &mdash; click to drop; right-click: east-coast line</label>
+      <label class="wxchk"><input type="checkbox" id="wxptcl" checked> Particle traces &mdash; click drops a <span style="color:#A855F7">purple</span> persistent swarm; right-click: east-coast line</label>
       <label class="wxchk"><input type="checkbox" id="wxptceu"> European departure line on right-click <span style="color:#FFB05C">(amber)</span></label>
       <label class="wxchk"><input type="checkbox" id="wxshadow" checked> Night shadow (solar terminator)</label>
       <label class="wxchk"><input type="checkbox" id="wxshadowanim" checked> &mdash; also during playback</label>
@@ -355,7 +356,7 @@ document.documentElement.classList.add("railoff","tloff");
         <div class="rampx"><span>less</span><span>traffic volume</span><span>more</span></div>
       </div>
       <label class="wxchk"><input type="checkbox" id="wxptradar"> Radar-driven release, automatic (size &rarr; endurance)</label>
-      <p class="note">The 0.25&deg; ECMWF weather, reduced to what matters for migration: <b>wind</b> barbs in the migration band &mdash; the strongest of the 925/850&nbsp;hPa levels (~800&ndash;1500&nbsp;m), shown from 5&nbsp;m/s &mdash; or at the surface (10&nbsp;m), toggle above; the leading edge of <b>precipitation</b> (a barrier birds won't cross), and where the <b>ground is freezing</b> (&le;0&nbsp;&deg;C &mdash; blue hatched regions, distinct from grey precipitation; a frost triggers departures). <b>Particle traces</b>: click the map to release passive tracers that ride the migration-band wind in lockstep with the timeline: step, scrub or play the dates to advect them (one phase &asymp; 3.4&nbsp;h of transport; a still timeline is a still picture). Right-click seeds a line of tracers along the American Atlantic coast, Miami to northern Labrador &mdash; the Nearctic departure line (<span style="color:#7FD8C4">teal</span>). Enable <b>European departure line</b> above and the same right-click also seeds the Atlantic-facing European seaboard, North Cape to Morocco, in <span style="color:#FFB05C">amber</span> (zoom out to watch). <b>Night shadow</b> shades the sunlit day side warm and the night side dark for each date/phase &mdash; because the map spans an ocean, a "night" phase falls at very different clock times in America and Europe, and the terminator makes that offset visible. <b>US east-coast radars (NEXRAD)</b> adds the American seaboard radars in <span style="color:#7FD8C4">teal</span> (matching the Nearctic tracers); each disc grows and brightens with its <b>traffic volume</b> on its own uncalibrated density scale (the teal ramp in settings; each radar binned on its own local night), and they light up when the shadow reaches them. Enable <b>Radar-driven release</b> and the radars seed tracers along the American <b>shoreline</b> automatically as the timeline advances (no right-click needed): how many per stretch follows the nearest radar's density for that phase &mdash; daytime detections (mostly insects and local movement) release at a quarter of a night phase &mdash; and each tracer draws its own <b>size</b> from the radar-night's spread of flight speeds (radar airspeed &mdash; ground speed minus wind &mdash; stands in for size, which sets endurance: a small passerine a few days, a wader up to two weeks), so one release carries a mix of guilds. Colour runs pale (short-lived small birds) to orange (long-haul waders).</p>
+      <p class="note">The 0.25&deg; ECMWF weather, reduced to what matters for migration: <b>wind</b> barbs in the migration band &mdash; the strongest of the 925/850&nbsp;hPa levels (~800&ndash;1500&nbsp;m), shown from 5&nbsp;m/s &mdash; or at the surface (10&nbsp;m), toggle above; the leading edge of <b>precipitation</b> (a barrier birds won't cross), and where the <b>ground is freezing</b> (&le;0&nbsp;&deg;C &mdash; blue hatched regions, distinct from grey precipitation; a frost triggers departures). <b>Particle traces</b>: click the map to release a <span style="color:#A855F7">purple</span>, persistent swarm (no lifetime) that rides the migration-band wind in lockstep with the timeline: step, scrub or play the dates to advect them (one phase &asymp; 3.4&nbsp;h of transport; a still timeline is a still picture). Right-click seeds a line of tracers along the American Atlantic coast, Miami to northern Labrador &mdash; the Nearctic departure line (<span style="color:#7FD8C4">teal</span>). Enable <b>European departure line</b> above and the same right-click also seeds the Atlantic-facing European seaboard, North Cape to Morocco, in <span style="color:#FFB05C">amber</span> (zoom out to watch). <b>Night shadow</b> shades the sunlit day side warm and the night side dark for each date/phase &mdash; because the map spans an ocean, a "night" phase falls at very different clock times in America and Europe, and the terminator makes that offset visible. <b>US east-coast radars (NEXRAD)</b> adds the American seaboard radars in <span style="color:#7FD8C4">teal</span> (matching the Nearctic tracers); each disc grows and brightens with its <b>traffic volume</b> on its own uncalibrated density scale (the teal ramp in settings; each radar binned on its own local night), and they light up when the shadow reaches them. Enable <b>Radar-driven release</b> and the radars seed tracers along the American <b>shoreline</b> automatically as the timeline advances (no right-click needed): how many per stretch follows the nearest radar's density for that phase &mdash; daytime detections (mostly insects and local movement) release at a quarter of a night phase &mdash; and each tracer draws its own <b>size</b> from the radar-night's spread of flight speeds (radar airspeed &mdash; ground speed minus wind &mdash; stands in for size, which sets endurance: a small passerine a few days, a wader up to two weeks), so one release carries a mix of guilds. Colour runs pale (short-lived small birds) to orange (long-haul waders).</p>
     </div>
 
     <div class="grp" id="routesgrp">
@@ -1282,6 +1283,7 @@ const PT_MAX=4000;
 const DAYTIME_FACTOR=0.25;   // daytime radar detections (mostly insects/local) release at 25% of a night phase
 const PT_COL_NA="127,216,196";                 // Nearctic tracers: teal
 const PT_COL_EU="255,176,92";                  // Palearctic tracers: amber
+const PT_COL_CLICK="168,85,247";               // user-dropped (click) swarms: purple, no lifetime
 function ptField(){ const wf=wxFrame(); return (wf && wf.wgrid) ? wf.wgrid : null; }
 function ptSample(g,lon,lat){                 // bilinear, m/s; null off-grid/no-data
   const fx=(lon-g.lon0)/g.dlon, fy=(lat-g.lat0)/g.dlat;   // dlat<0: lat descends
@@ -1304,11 +1306,11 @@ function ptDrop(mx,my){                       // screen point -> a puff of trace
   const lat=unmerc(BB.y1-((my-view.y)/view.k-OY)/SC);
   for(let n=0;n<36 && ptParts.length<PT_MAX;n++){
     ptParts.push({lon:lon+(Math.random()-0.5)*0.9, lat:lat+(Math.random()-0.5)*0.6,
-                  age:0, life:96+Math.random()*96,        // 4-8 days of transport
+                  age:0, life:Infinity,                   // user-dropped: no lifetime (never ages out)
                   u:0, v:0,                               // last field velocity (persistence)
                   du:(Math.random()-0.5)*1.5,             // per-particle drift: the puff
                   dv:(Math.random()-0.5)*1.5,             //   disperses ~±0.75 m/s
-                  col:PT_COL_NA});
+                  col:PT_COL_CLICK});
   }
 }
 // Right-click: seed a line of tracers along the Nearctic Atlantic seaboard --
@@ -1483,7 +1485,7 @@ function ptAdvect(g,hours){                    // one phase of transport, 4 subs
     // coverage is not a wall -- the particle coasts on its last velocity
     if(p.age>p.life || (g && (p.lon<g.lon0||p.lon>lonEnd||p.lat>g.lat0||p.lat<latEnd))){
       ptParts.splice(n,1); continue; }
-    const a=Math.max(0,(p.life-p.age)/p.life);
+    const a=isFinite(p.life)?Math.max(0,(p.life-p.age)/p.life):1;   // immortal (click) swarms stay full-strength
     ctxPt.strokeStyle=`rgba(${p.col||PT_COL_NA},${0.35+0.6*a})`;
     ctxPt.lineWidth=1.4;
     for(let q=0;q<SUB;q++){
