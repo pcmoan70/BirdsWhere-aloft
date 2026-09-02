@@ -65,6 +65,10 @@ a 1 km line during the phase; most migration is nocturnal.
   small passerine a few days to a wader up to ~two weeks; colour runs pale (short)
   to orange (long-haul).
 
+- **Clear particle swarms** — a settings button removes every tracer (dropped,
+  seeded, and radar-driven) at once. Auto-playback stops at the end of the date
+  range rather than looping.
+
 ### US east-coast radars (NEXRAD)
 - Adds the American seaboard radars as **teal traffic-volume discs** (each disc
   grows/brightens with its density, own uncalibrated scale shown as a ramp in

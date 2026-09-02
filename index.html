@@ -93,6 +93,10 @@ html.railoff{--rail:0px}
 .note{font-size:11px;color:var(--muted);line-height:1.5}
 .qrbox{display:inline-block;line-height:0;margin:2px 0 4px}
 .qrbox img{width:100%;max-width:230px;height:auto;display:block}
+.ptclear{font-family:var(--f-mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted);background:var(--ground-2);border:1px solid var(--line);border-radius:4px;
+  padding:5px 8px;margin:3px 0 2px;cursor:pointer;width:100%}
+.ptclear:hover{color:var(--ink-2);border-color:var(--ink-2)}
 .wxchk{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--ink-2)}
 .wxchk input{accent-color:var(--accent)}
 .note b{color:var(--ink-2);font-weight:500}
@@ -281,7 +285,9 @@ document.documentElement.classList.add("railoff","tloff");
         <b>in lockstep with the timeline</b>: step, scrub or press play and they fly
         (one phase &asymp; 3.4&nbsp;h of transport, dispersing as they go &mdash;
         seeded lines fade over days, the purple swarms do not); a still timeline is
-        a still picture, and scrubbing backwards resets them. Compare a trace with the arrows to separate wind drift from the
+        a still picture, and scrubbing backwards resets them; the <b>Clear
+        particle swarms</b> button (settings) wipes them all at once. Compare a
+        trace with the arrows to separate wind drift from the
         birds&rsquo; own effort.</p>
 
       <p><b>The background wash</b> (when Breeding-species turnover is on) is a
@@ -356,6 +362,7 @@ document.documentElement.classList.add("railoff","tloff");
         <div class="rampx"><span>less</span><span>traffic volume</span><span>more</span></div>
       </div>
       <label class="wxchk"><input type="checkbox" id="wxptradar"> Radar-driven release, automatic (size &rarr; endurance)</label>
+      <button type="button" id="ptclear" class="ptclear">Clear particle swarms</button>
       <p class="note">The 0.25&deg; ECMWF weather, reduced to what matters for migration: <b>wind</b> barbs in the migration band &mdash; the strongest of the 925/850&nbsp;hPa levels (~800&ndash;1500&nbsp;m), shown from 5&nbsp;m/s &mdash; or at the surface (10&nbsp;m), toggle above; the leading edge of <b>precipitation</b> (a barrier birds won't cross), and where the <b>ground is freezing</b> (&le;0&nbsp;&deg;C &mdash; blue hatched regions, distinct from grey precipitation; a frost triggers departures). <b>Particle traces</b>: click the map to release a <span style="color:#A855F7">purple</span>, persistent swarm (no lifetime) that rides the migration-band wind in lockstep with the timeline: step, scrub or play the dates to advect them (one phase &asymp; 3.4&nbsp;h of transport; a still timeline is a still picture). Right-click seeds a line of tracers along the American Atlantic coast, Miami to northern Labrador &mdash; the Nearctic departure line (<span style="color:#7FD8C4">teal</span>). Enable <b>European departure line</b> above and the same right-click also seeds the Atlantic-facing European seaboard, North Cape to Morocco, in <span style="color:#FFB05C">amber</span> (zoom out to watch). <b>Night shadow</b> shades the sunlit day side warm and the night side dark for each date/phase &mdash; because the map spans an ocean, a "night" phase falls at very different clock times in America and Europe, and the terminator makes that offset visible. <b>US east-coast radars (NEXRAD)</b> adds the American seaboard radars in <span style="color:#7FD8C4">teal</span> (matching the Nearctic tracers); each disc grows and brightens with its <b>traffic volume</b> on its own uncalibrated density scale (the teal ramp in settings; each radar binned on its own local night), and they light up when the shadow reaches them. Enable <b>Radar-driven release</b> and the radars seed tracers along the American <b>shoreline</b> automatically as the timeline advances (no right-click needed): how many per stretch follows the nearest radar's density for that phase &mdash; daytime detections (mostly insects and local movement) release at a quarter of a night phase &mdash; and each tracer draws its own <b>size</b> from the radar-night's spread of flight speeds (radar airspeed &mdash; ground speed minus wind &mdash; stands in for size, which sets endurance: a small passerine a few days, a wader up to two weeks), so one release carries a mix of guilds. Colour runs pale (short-lived small birds) to orange (long-haul waders).</p>
     </div>
 
@@ -2277,6 +2284,8 @@ document.getElementById("ovlcut").addEventListener("input",e=>ovlSetCutoff(+e.ta
   const prEl=document.getElementById("wxptradar");
   prEl.disabled=!US_BINS;                                      // needs NEXRAD data
   prEl.addEventListener("change",e=>{ ptRadar=e.target.checked; });
+  const pcEl=document.getElementById("ptclear");
+  if(pcEl) pcEl.addEventListener("click",()=>ptClear());   // clear all particle swarms
 })();
 document.getElementById("scale").addEventListener("click",e=>{
   const b=e.target.closest("button"); if(!b) return;
