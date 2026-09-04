@@ -9,6 +9,8 @@ which way they are heading, as vertical profiles. Each timeline frame is one
 phase means the same thing across the map. Traffic (**MT**) counts birds crossing
 a 1 km line during the phase; most migration is nocturnal.
 
+**Methods:** [How bird signals are extracted from weather radar](BIRD-SIGNAL-EXTRACTION.md) — the biology filter, reflectivity → density, VAD velocity, and the Europe/US pipelines.
+
 ## Functions
 
 ### Timeline & playback (bottom bar)
