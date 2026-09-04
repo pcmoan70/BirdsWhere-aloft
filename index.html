@@ -364,7 +364,7 @@ document.documentElement.classList.add("railoff","tloff");
       </div>
       <label class="wxchk"><input type="checkbox" id="wxptradar"> Radar-driven release, automatic (size &rarr; endurance)</label>
       <button type="button" id="ptclear" class="ptclear">Clear particle swarms</button>
-      <p class="note">The 0.25&deg; ECMWF weather, reduced to what matters for migration: <b>wind</b> barbs in the migration band &mdash; the strongest of the 925/850&nbsp;hPa levels (~800&ndash;1500&nbsp;m), shown from 5&nbsp;m/s &mdash; or at the surface (10&nbsp;m), toggle above; the leading edge of <b>precipitation</b> (a barrier birds won't cross), and where the <b>ground is freezing</b> (&le;0&nbsp;&deg;C &mdash; blue hatched regions, distinct from grey precipitation; a frost triggers departures). <b>Particle traces</b>: click the map to release a <span style="color:#A855F7">purple</span>, persistent swarm (no lifetime) that rides the migration-band wind in lockstep with the timeline: step, scrub or play the dates to advect them (one phase &asymp; 3.4&nbsp;h of transport; a still timeline is a still picture). Right-click seeds a line of tracers along the American Atlantic coast, Miami to northern Labrador &mdash; the Nearctic departure line (<span style="color:#7FD8C4">teal</span>). Enable <b>European departure line</b> above and the same right-click also seeds the Atlantic-facing European seaboard, North Cape to Morocco, in <span style="color:#FFB05C">amber</span> (zoom out to watch). <b>Night shadow</b> shades the sunlit day side warm and the night side dark for each date/phase &mdash; because the map spans an ocean, a "night" phase falls at very different clock times in America and Europe, and the terminator makes that offset visible. <b>US east-coast radars (NEXRAD)</b> adds the American seaboard radars in <span style="color:#7FD8C4">teal</span> (matching the Nearctic tracers); each disc grows and brightens with its <b>traffic volume</b> on its own uncalibrated density scale (the teal ramp in settings; each radar binned on its own local night), and they light up when the shadow reaches them. Enable <b>Radar-driven release</b> and the radars seed tracers along the American <b>shoreline</b> automatically as the timeline advances (no right-click needed): how many per stretch follows the nearest radar's density for that phase &mdash; daytime detections (mostly insects and local movement) release at a quarter of a night phase &mdash; and each tracer draws its own <b>size</b> from the radar-night's spread of flight speeds (radar airspeed &mdash; ground speed minus wind &mdash; stands in for size, which sets endurance: a small passerine a few days, a wader up to two weeks), so one release carries a mix of guilds. The released tracers are drawn <span style="color:#7FD8C4">teal</span> to match the US layer.</p>
+      <p class="note">The 0.25&deg; ECMWF weather, reduced to what matters for migration: <b>wind</b> barbs in the migration band &mdash; the strongest of the 925/850&nbsp;hPa levels (~800&ndash;1500&nbsp;m), shown from 5&nbsp;m/s &mdash; or at the surface (10&nbsp;m), toggle above; the leading edge of <b>precipitation</b> (a barrier birds won't cross), and where the <b>ground is freezing</b> (&le;0&nbsp;&deg;C &mdash; blue hatched regions, distinct from grey precipitation; a frost triggers departures). <b>Particle traces</b>: click the map to release a <span style="color:#A855F7">purple</span>, persistent swarm (no lifetime) that rides the migration-band wind in lockstep with the timeline: step, scrub or play the dates to advect them (one phase &asymp; 3.4&nbsp;h of transport; a still timeline is a still picture). Right-click seeds a line of tracers along the American Atlantic coast, Miami to northern Labrador &mdash; the Nearctic departure line (<span style="color:#7FD8C4">teal</span>). Enable <b>European departure line</b> above and the same right-click also seeds the Atlantic-facing European seaboard, North Cape to Morocco, in <span style="color:#FFB05C">amber</span> (zoom out to watch). <b>Night shadow</b> shades the sunlit day side warm and the night side dark for each date/phase &mdash; because the map spans an ocean, a "night" phase falls at very different clock times in America and Europe, and the terminator makes that offset visible. <b>US east-coast radars (NEXRAD)</b> adds the American seaboard radars in <span style="color:#7FD8C4">teal</span> (matching the Nearctic tracers); each disc grows and brightens with its <b>traffic volume</b> on its own uncalibrated density scale (the teal ramp in settings; each radar binned on its own local night), and they light up when the shadow reaches them. Enable <b>Radar-driven release</b> and the radars seed tracers along the American <b>shoreline</b> automatically as the timeline advances (no right-click needed): each radar releases about <b>one tracer per 1000 birds</b> of its measured traffic, spread along its shoreline &mdash; daytime detections (mostly insects and local movement) release at a quarter of that &mdash; and each tracer draws its own <b>size</b> from the radar-night's spread of flight speeds (radar airspeed &mdash; ground speed minus wind &mdash; stands in for size, which sets endurance: a small passerine a few days, a wader up to two weeks), so one release carries a mix of guilds. The released tracers are drawn <span style="color:#7FD8C4">teal</span> to match the US layer.</p>
     </div>
 
     <div class="grp" id="routesgrp">
@@ -1432,20 +1432,27 @@ function ptSeedRadar(i=idx){
     rad.push({R, dens:r[1], gu:r[2], gv:r[3], su:r[5]??null, sv:r[6]??null, w});
   }
   if(!rad.length) return 0;
-  const dmax=Math.max(1e-6, ...rad.map(x=>x.dens));
-  let made=0;
+  // attribute each shoreline stretch to its nearest radar
+  for(const x of rad) x.pts=[];
   for(const [la,lo] of ptCoastDense()){
-    let best=null, bd=1e9;                         // attribute the stretch to its nearest radar
+    let best=null, bd=1e9;
     for(const x of rad){ const d=Math.hypot(la-x.R.lat,(lo-x.R.lon)*Math.cos(la*Math.PI/180));
       if(d<bd){ bd=d; best=x; } }
-    if(!best || bd>3.5) continue;
-    const n=Math.round((best.dens/dmax)*0.75*dayf);   // ~0.75 tracers/point at peak (reduced 75%); daytime x DAYTIME_FACTOR
-    for(let k=0;k<n && ptParts.length<PT_MAX;k++){
-      const life=ptDotLife(best);                  // per-dot guild -> endurance (life only)
+    if(best && bd<=3.5) best.pts.push([la,lo]);
+  }
+  // release ~1 tracer per 1000 birds of the radar's traffic (band density),
+  // spread along its own shoreline stretch; daytime x DAYTIME_FACTOR.
+  let made=0;
+  for(const x of rad){
+    if(!x.pts.length || !(x.dens>0)) continue;
+    const N=Math.round(x.dens/1000*dayf);
+    for(let k=0;k<N && ptParts.length<PT_MAX;k++){
+      const [la,lo]=x.pts[(Math.random()*x.pts.length)|0];
+      const life=ptDotLife(x);                     // per-dot guild -> endurance (life only)
       ptParts.push({lon:lo+(Math.random()-0.5)*0.3, lat:la+(Math.random()-0.5)*0.3,
                     age:0, life, u:0, v:0,
                     du:(Math.random()-0.5)*1.5, dv:(Math.random()-0.5)*1.5,
-                    col:PT_COL_NA});          // US radar releases: teal (matches the US layer)
+                    col:PT_COL_NA});          // teal (matches the US layer)
       made++;
     }
   }
