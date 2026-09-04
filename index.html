@@ -263,7 +263,8 @@ document.documentElement.classList.add("railoff","tloff");
         mode blends the same measurements into an animated field between radars
         &mdash; blank areas simply have no radar within range. Click any radar for
         its full profile: traffic by phase, flight altitudes, and the sector
-        breakdown.</p>
+        breakdown. Clicking a <span style="color:#7FD8C4">teal US radar</span> opens
+        its own panel too &mdash; density, mean heading and the day's phases.</p>
 
       <p><b>Weather symbols.</b> Wind <b>barbs</b> use the meteorological
         convention &mdash; half feather 5&nbsp;kt, full 10&nbsp;kt, pennant
@@ -515,7 +516,7 @@ document.documentElement.classList.add("railoff","tloff");
     <div class="dsub" id="thheat-lbl" style="display:none">Density &amp; heading over the last weeks &middot; altitude &times; time</div>
     <canvas id="thheat" style="display:none"></canvas>
     <table>
-      <thead><tr><th>Sector</th><th>MT</th><th>U</th><th>V</th><th>Share</th></tr></thead>
+      <thead><tr id="d-head"><th>Sector</th><th>MT</th><th>U</th><th>V</th><th>Share</th></tr></thead>
       <tbody id="d-rows"></tbody>
     </table>
     <p class="note" id="d-note"></p>
@@ -613,7 +614,7 @@ const phaseOf  = i => PHASES[splitKey(TIMES[i])[1]];
 const hhmm = x => { const d=((x%1440)+1440)%1440;
   return String(Math.floor(d/60)).padStart(2,"0")+":"+String(d%60).padStart(2,"0"); };
 
-let mode="arrow", filt="bird", scaleMode="rate", idx=0, playing=false, sel=null;
+let mode="arrow", filt="bird", scaleMode="rate", idx=0, playing=false, sel=null, selUS=null;
 const phaseSel=new Set();   // selected solar phases; empty = every frame. Filters the timeline.
 let navList=[];             // TIMES indices the scrubber / arrows / play step through
 let showOvl = !!(OVL && (OVL.png || OVL.weeks));
@@ -1916,7 +1917,7 @@ function miniScrub(e){
   const target=Math.round(frac*(TIMES.length-1));
   if(target!==idx){ idx=target;
     const p=navList.indexOf(idx); if(p>=0) scrub.value=p;
-    grid=null; draw(); drawSpark(); if(sel!=null) openDetail(sel); }
+    grid=null; draw(); drawSpark(); redrawDetail(); }
 }
 miniSp.addEventListener("pointerdown",e=>{ miniGrab=true;
   miniSp.setPointerCapture(e.pointerId); miniScrub(e); e.preventDefault(); });
@@ -2093,10 +2094,14 @@ function drawHProfile(rec){
   g.fillText("peak "+peak.toFixed(peak<10?1:0)+" "+unit+" at "+Math.round((H.indexOf(peak)*HBIN_M+HBASE_M+HBIN_M/2))+" m",padL+2,hgt-4);
 }
 function openDetail(ri){
-  sel=ri;
+  sel=ri; selUS=null;
   const f=frame(), rec=f.find(r=>r[I_RI]===ri);
   const R=RAD[ri], D=document.getElementById("detail");
   D.classList.add("on");
+  document.getElementById("d-id").style.color="";                 // reset if a US radar had recoloured it
+  document.getElementById("d-crow").style.display="";
+  document.getElementById("d-head").innerHTML=
+    "<th>Sector</th><th>MT</th><th>U</th><th>V</th><th>Share</th>";
   document.getElementById("d-id").textContent=R.id.toUpperCase();
   document.getElementById("d-pos").textContent=
     `${R.cc.toUpperCase()} \u00B7 ${R.lat.toFixed(3)}\u00B0N ${R.lon.toFixed(3)}\u00B0E`;
@@ -2174,8 +2179,73 @@ function openDetail(ri){
   drawHProfile(rec); drawTimeHeight(ri);
   fit(); drawBase(); draw();
 }
+function redrawDetail(){ if(sel!=null) openDetail(sel); else if(selUS!=null) openUSDetail(selUS); }
+
+// US NEXRAD detail (teal layer). One mean heading per phase, no sectors/altitude,
+// so: a compass with the mean-heading arrow + the density, and the day's phases.
+function openUSDetail(ui){
+  selUS=ui; sel=null;
+  const R=US_RAD[ui];
+  document.getElementById("detail").classList.add("on");
+  const idEl=document.getElementById("d-id");
+  idEl.textContent=R.id.toUpperCase(); idEl.style.color="#7FD8C4";
+  document.getElementById("d-pos").textContent=
+    `US NEXRAD · ${R.lat.toFixed(3)}°N ${Math.abs(R.lon).toFixed(3)}°W`;
+  document.getElementById("d-crow").style.display="none";
+  ["hprof","hprof-lbl","thheat","thheat-lbl"].forEach(id=>
+    document.getElementById(id).style.display="none");
+  document.getElementById("d-head").innerHTML=
+    "<th>Phase</th><th>Density</th><th>Dir</th><th>Speed</th>";
+  const recs=US_BINS[TIMES[idx]]||[], rec=recs.find(r=>r[0]===ui);
+  const rc=document.getElementById("rose"), g=rc.getContext("2d");
+  const dpr=Math.min(2,devicePixelRatio||1), ff=getComputedStyle(document.body).fontFamily;
+  rc.width=rc.clientWidth*dpr; rc.height=210*dpr; g.setTransform(dpr,0,0,dpr,0,0);
+  g.clearRect(0,0,rc.clientWidth,210);
+  const cx=rc.clientWidth/2, cy=105, rmax=84;
+  g.strokeStyle="rgba(38,51,74,.9)"; g.lineWidth=.8;
+  g.beginPath(); g.arc(cx,cy,rmax,0,7); g.stroke();
+  g.font="600 9px "+ff; g.fillStyle="#7C8AA3"; g.textAlign="center"; g.textBaseline="middle";
+  for(let i=0;i<NS;i++){ const b=i*45*Math.PI/180;
+    g.fillText(SEC[i],cx+Math.sin(b)*(rmax+11),cy-Math.cos(b)*(rmax+11)); }
+  let dens=null,dir=null,spd=null;
+  if(rec){ dens=rec[1]; const u=rec[2], v=rec[3];
+    if(u!=null && v!=null){ const m=Math.hypot(u,v); spd=m;
+      if(m>0.3){ const brg=bearing(u,v); dir=brg;
+        const dx=Math.sin(brg*Math.PI/180), dy=-Math.cos(brg*Math.PI/180), L=rmax*0.9;
+        const tx=cx+dx*L, ty=cy+dy*L, nx=-dy, ny=dx, hw=6, hl=12;
+        g.strokeStyle="rgba(127,216,196,.95)"; g.lineWidth=3; g.lineCap="round";
+        g.beginPath(); g.moveTo(cx,cy); g.lineTo(tx,ty); g.stroke();
+        g.beginPath(); g.moveTo(tx,ty);
+        g.lineTo(tx-dx*hl+nx*hw, ty-dy*hl+ny*hw);
+        g.lineTo(tx-dx*hl-nx*hw, ty-dy*hl-ny*hw);
+        g.closePath(); g.fillStyle="rgba(127,216,196,.95)"; g.fill(); }}}
+  g.fillStyle="#7FD8C4"; g.font="600 14px "+ff; g.textAlign="center";
+  g.fillText(dens!=null?String(Math.round(dens)):"—", cx, cy-3);
+  g.fillStyle="#7C8AA3"; g.font="9px "+ff; g.fillText("birds/km³", cx, cy+11);
+  const day=splitKey(TIMES[idx])[0], tb=document.getElementById("d-rows"); tb.innerHTML="";
+  for(let i=0;i<TIMES.length;i++){
+    if(splitKey(TIMES[i])[0]!==day) continue;
+    const rr=(US_BINS[TIMES[i]]||[]).find(x=>x[0]===ui);
+    let dv="—",dr="—",sp="—";
+    if(rr){ dv=Math.round(rr[1]); if(rr[2]!=null){ const m=Math.hypot(rr[2],rr[3]);
+      if(m>0.3){ dr=SEC[Math.round(bearing(rr[2],rr[3])/45)%NS]; sp=m.toFixed(1); }}}
+    const tr=document.createElement("tr");
+    if(i===idx) tr.className="top"; else if(!rr) tr.className="z";
+    tr.innerHTML=`<td>${PH_LABEL[phaseOf(i)]||phaseOf(i)}</td><td>${dv}</td><td>${dr}</td><td>${sp}</td>`;
+    tb.appendChild(tr);
+  }
+  document.getElementById("d-note").innerHTML=
+    `US east-coast <b>NEXRAD</b> (teal layer, own scale). Bird <b>density</b> band-summed `+
+    `200–1600 m, vol2bird-calibrated (birds/km³). `+
+    (dir!=null
+      ? `Mean heading <b>${SEC[Math.round(dir/45)%NS]} ${Math.round(dir)}°</b> at `
+        +`${spd.toFixed(1)} m/s ground velocity. `
+      : `No flight direction measured this phase. `)+
+    (rec ? `${rec[4]} radar scans.` : `No data in this frame.`);
+  fit(); drawBase(); draw();
+}
 document.getElementById("close").onclick=()=>{
-  sel=null; document.getElementById("detail").classList.remove("on"); resize(); };
+  sel=null; selUS=null; document.getElementById("detail").classList.remove("on"); resize(); };
 
 /* ---------- legend ---------- */
 function legend(){
@@ -2219,7 +2289,7 @@ document.getElementById("filt").addEventListener("click",e=>{
   [...document.querySelectorAll("#filt button")].forEach(x=>
     x.setAttribute("aria-pressed", x===b?"true":"false"));
   grid=null; rescale(); series(); legend(); draw(); drawSpark();
-  if(sel!=null) openDetail(sel);
+  redrawDetail();
 });
 document.getElementById("ovltog").addEventListener("click",e=>{
   const b=e.target.closest("button"); if(!b) return;
@@ -2293,7 +2363,7 @@ document.getElementById("scale").addEventListener("click",e=>{
   [...document.querySelectorAll("#scale button")].forEach(x=>
     x.setAttribute("aria-pressed", x===b?"true":"false"));
   grid=null; rescale(); series(); legend(); draw(); drawSpark();
-  if(sel!=null) openDetail(sel);
+  redrawDetail();
 });
 const scrub=document.getElementById("scrub");
 const dayMode=()=>TIMES===DAY_TIMES;
@@ -2328,20 +2398,20 @@ document.getElementById("daytog").addEventListener("click",e=>{
 });
 rebuildNav();
 scrub.addEventListener("input",()=>{ idx=navList[+scrub.value] ?? idx; grid=null;
-  draw(); drawSpark(); if(sel!=null) openDetail(sel); });
+  draw(); drawSpark(); redrawDetail(); });
 document.getElementById("phstrip").addEventListener("click",e=>{
   const s=e.target.closest("span"); if(!s||!s.dataset.p) return;
   const p=s.dataset.p; if(phaseSel.has(p)) phaseSel.delete(p); else phaseSel.add(p);
   [...document.querySelectorAll("#phstrip span")].forEach(el=>el.classList.toggle("sel", phaseSel.has(el.dataset.p)));
-  rebuildNav(); grid=null; draw(); drawSpark(); if(sel!=null) openDetail(sel);
+  rebuildNav(); grid=null; draw(); drawSpark(); redrawDetail();
 });
 document.getElementById("play").onclick=()=>{ playing=!playing;
   if(playing && navPos()>=navList.length-1){  // play from the end -> restart
-    gotoNav(0); grid=null; draw(); drawSpark(); if(sel!=null) openDetail(sel); }
+    gotoNav(0); grid=null; draw(); drawSpark(); redrawDetail(); }
   else if(!playing) draw();                    // pausing: bring the shadow back if it was hidden in playback
   document.getElementById("play").textContent=playing?"\u275A\u275A":"\u25B6"; };
 const stepFrame=n=>{ gotoNav(navPos()+n); grid=null; draw(); drawSpark();
-  if(sel!=null) openDetail(sel); };
+  redrawDetail(); };
 document.getElementById("prevf").onclick=()=>stepFrame(-1);
 document.getElementById("nextf").onclick=()=>stepFrame(1);
 document.addEventListener("keydown",e=>{
@@ -2352,7 +2422,7 @@ document.addEventListener("keydown",e=>{
   else if(e.key==="-"||e.key==="_"){zoomAt(W/2,H/2,1/1.6);return;}
   else if(e.key==="0"){resetView();return;}
   else return;
-  grid=null; draw(); drawSpark(); if(sel!=null) openDetail(sel);
+  grid=null; draw(); drawSpark(); redrawDetail();
 });
 /* ---------- pan & zoom ---------- */
 let Z_MIN=1; const Z_MAX=24;
@@ -2400,7 +2470,11 @@ cvP.addEventListener("click",e=>{
   let best=null,bd=26;
   RAD.forEach((R,i)=>{ const d=Math.hypot(px(R.lon)-mx,py(R.lat)-my);
     if(d<bd){bd=d;best=i;} });
-  if(best!=null) openDetail(best);
+  let ubest=null,ubd=26;                      // US NEXRAD radars (teal layer)
+  if(showUS && US_RAD) US_RAD.forEach((R,i)=>{ const d=Math.hypot(px(R.lon)-mx,py(R.lat)-my);
+    if(d<ubd){ubd=d;ubest=i;} });
+  if(ubest!=null && (best==null || ubd<bd)) openUSDetail(ubest);
+  else if(best!=null) openDetail(best);
   else if(ptOn) ptDrop(mx,my);               // empty map + traces on -> drop a puff
 });
 cvP.addEventListener("dblclick",e=>{ const [mx,my]=stageXY(e); zoomAt(mx,my,2); });
@@ -2476,7 +2550,7 @@ function loop(now){
         draw();                               // restore the shadow if it was hidden in playback
       } else {
         gotoNav(navPos()+1); grid=null;
-        draw(); drawSpark(); if(sel!=null) openDetail(sel);
+        draw(); drawSpark(); redrawDetail();
       } } }
   requestAnimationFrame(loop);
 }

@@ -34,6 +34,8 @@ a 1 km line during the phase; most migration is nocturnal.
   **red cross** = silent for a whole solar day.
 - **Click a radar** for its full profile: traffic by phase, flight altitudes, and
   the compass-sector breakdown (with a link out to the aloft/CROW profile).
+  **US teal radars** open their own panel too — a compass with the mean heading,
+  band density (birds/km³), and the day's phase-by-phase values.
 
 ### Traffic included / Measure
 - **All echoes** vs **Birds only** (biological filtering).
