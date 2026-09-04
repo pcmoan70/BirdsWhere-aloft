@@ -1131,9 +1131,9 @@ function drawArrow(g,x,y,u,v,t,borrowed){
   // deficiency. t is already normalised against the 97th percentile.
   const m=Math.hypot(u,v); if(m<=0||t<=0) return;
   const dx=u/m, dy=-v/m, nx=-dy, ny=dx;            // heading unit + perpendicular
-  const L    = 2.5 + t*19.5;                        // 2.5 -> 22 px (half-size)
-  const wid  = 0.4 + t*3.2;                         // 0.4 -> 3.6 px
-  const head = 2.25 + t*6.75;
+  const L    = 3.5 + t*29;                          // 3.5 -> 32 px
+  const wid  = 0.6 + t*4.4;                         // 0.6 -> 5 px
+  const head = 3.2 + t*9.3;
   const hw   = wid*0.6 + head*0.28;                 // narrow, pointed head (still wider than shaft)
   const tx=x+dx*L, ty=y+dy*L;                       // tip
   const bx=tx-dx*head, by=ty-dy*head;               // base of the head
@@ -1442,7 +1442,7 @@ function ptSeedRadar(i=idx){
     for(const x of rad){ const d=Math.hypot(la-x.R.lat,(lo-x.R.lon)*Math.cos(la*Math.PI/180));
       if(d<bd){ bd=d; best=x; } }
     if(!best || bd>3.5) continue;
-    const n=Math.round((best.dens/dmax)*3*dayf);   // ~3 tracers/point at peak night density; daytime scaled by DAYTIME_FACTOR
+    const n=Math.round((best.dens/dmax)*0.75*dayf);   // ~0.75 tracers/point at peak (reduced 75%); daytime x DAYTIME_FACTOR
     for(let k=0;k<n && ptParts.length<PT_MAX;k++){
       const life=ptDotLife(best);                  // per-dot guild -> endurance
       ptParts.push({lon:lo+(Math.random()-0.5)*0.3, lat:la+(Math.random()-0.5)*0.3,
@@ -1744,7 +1744,7 @@ function drawUS(g){
       const m=Math.hypot(u,v);
       if(m>0.3){
         const dx=u/m, dy=-v/m, nx=-dy, ny=dx;
-        const L=6+t*22, head=3+t*7, hw=1+head*0.32, wid=1+t*3;
+        const L=8+t*32, head=4+t*10, hw=1.2+head*0.32, wid=1.4+t*4;
         const tx=x+dx*L, ty=y+dy*L, bx=tx-dx*head, by=ty-dy*head;
         g.lineJoin="round"; g.lineCap="butt";
         g.strokeStyle="rgba(7,12,22,.6)"; g.lineWidth=wid+1.4;
