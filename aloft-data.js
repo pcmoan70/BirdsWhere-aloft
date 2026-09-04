@@ -78,10 +78,12 @@
       // phase_utc.json maps every date|phase to a canonical UTC instant (from the
       // European centroid) so the client can draw the true solar terminator;
       // nexrad.json is the separate US east-coast radar layer, its own scale.
+      // Both update as radars/days are processed, independently of the manifest
+      // version, so they must NOT be version-cached -- fetch fresh (no-store).
       const [PHASEUTC, US] = await Promise.all([
-        fetch(base + "phase_utc.json" + V, { cache: "force-cache" })
+        fetch(base + "phase_utc.json", { cache: "no-store" })
           .then(r => r.ok ? r.json() : null).catch(() => null),
-        fetch(base + "nexrad.json" + V, { cache: "force-cache" })
+        fetch(base + "nexrad.json", { cache: "no-store" })
           .then(r => r.ok ? r.json() : null).catch(() => null),
       ]);
 
