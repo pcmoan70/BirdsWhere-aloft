@@ -63,8 +63,9 @@ a 1 km line during the phase; most migration is nocturnal.
   up to ~8 simulated days); a still timeline is a still picture, and stepping
   backwards or restarting resets them.
 - **Radar-driven release (automatic)** — with this on, each phase the radars seed
-  tracers along the US shoreline by their own traffic (daytime phases release ¼ as
-  many). Each tracer draws its **size/guild** from the radar-night's spread of
+  tracers along the US shoreline at ~**1 per 250 birds** of measured traffic
+  (daytime phases release ¼ as many), drawn teal. Each tracer draws its
+  **size/guild** from the radar-night's spread of
   flight speeds (airspeed = ground speed − wind), which sets its endurance aloft —
   small passerine a few days to a wader up to ~two weeks; colour runs pale (short)
   to orange (long-haul).
