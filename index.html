@@ -1481,14 +1481,20 @@ function ptPhaseHours(i){
   return 24/Math.max(1,nPh);
 }
 let ptLastIdx=null;
-function ptAdvect(g,hours){                    // one phase of transport, 4 substeps
+function ptAdvect(g,hours){                    // one phase of transport, Heun (RK2), 8 substeps
   // trails fade per phase stepped, not per wall-clock frame: pausing keeps
   // the picture, stepping ages it
   ctxPt.globalCompositeOperation="destination-out";
   ctxPt.fillStyle="rgba(0,0,0,.06)"; ctxPt.fillRect(0,0,W,H);
   ctxPt.globalCompositeOperation="source-over";
   ctxPt.lineCap="round";
-  const SUB=4, sim=hours*3600/SUB;
+  // Heun (RK2) substeps. Stability: explicit Euler amplifies in rotational
+  // (cyclonic) flow; Heun does not to first order. The substep must still keep
+  // both the CFL number (|v|dt/dx) and the rotation angle (vorticity*dt) small.
+  // At 8 substeps a ~3.4 h phase -> dt~25 min; for the resolved 1.5-deg wind
+  // (~=83 km at 60N) and winds to ~50 m/s that is CFL<~0.9 and vorticity*dt<~0.4,
+  // well inside Heun's stable regime over a tracer's multi-day life.
+  const SUB=8, sim=hours*3600/SUB;
   const lonEnd=g?g.lon0+g.dlon*(g.nx-1):null, latEnd=g?g.lat0+g.dlat*(g.ny-1):null;
   for(let n=ptParts.length-1;n>=0;n--){
     const p=ptParts[n]; p.age+=hours;
@@ -1500,11 +1506,17 @@ function ptAdvect(g,hours){                    // one phase of transport, 4 subs
     ctxPt.strokeStyle=`rgba(${p.col||PT_COL_NA},${0.35+0.6*a})`;
     ctxPt.lineWidth=1.4;
     for(let q=0;q<SUB;q++){
-      const s=g?ptSample(g,p.lon,p.lat):null;
-      if(s){ p.u=s[0]; p.v=s[1]; }
-      else { const f=Math.exp(-(hours/SUB)/12); p.u*=f; p.v*=f; }  // coasting
-      const jit=1.0;                       // speed decays (12 h e-fold) off-data
-      const uu=p.u+p.du+(Math.random()-0.5)*jit, vv=p.v+p.dv+(Math.random()-0.5)*jit;
+      // k1: wind at the current position (coast with a 12 h e-fold off-data)
+      const s1=g?ptSample(g,p.lon,p.lat):null;
+      if(s1){ p.u=s1[0]; p.v=s1[1]; }
+      else { const f=Math.exp(-(hours/SUB)/12); p.u*=f; p.v*=f; }
+      const cs0=Math.max(0.2,Math.cos(p.lat*Math.PI/180));
+      // Euler predictor, then k2 at the predicted point; advance on the mean (Heun)
+      const plon=p.lon+p.u*sim/(111320*cs0), plat=p.lat+p.v*sim/110574;
+      const s2=g?ptSample(g,plon,plat):null;
+      const um=s2?0.5*(p.u+s2[0]):p.u, vm=s2?0.5*(p.v+s2[1]):p.v;
+      const jit=1.0;                       // per-particle drift + small diffusive jitter
+      const uu=um+p.du+(Math.random()-0.5)*jit, vv=vm+p.dv+(Math.random()-0.5)*jit;
       const x0=px(p.lon), y0=py(p.lat);
       const cs=Math.max(0.2,Math.cos(p.lat*Math.PI/180));
       p.lon+=uu*sim/(111320*cs);
