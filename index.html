@@ -521,7 +521,7 @@ document.documentElement.classList.add("railoff","tloff");
     <div class="dsub" id="hprof-lbl" style="display:none">Traffic by altitude</div>
     <canvas id="hprof" style="display:none"></canvas>
     <div class="dsub" id="thheat-lbl" style="display:none">Density &amp; heading over the last weeks &middot; altitude &times; time</div>
-    <canvas id="thheat" style="display:none"></canvas>
+    <canvas id="thheat" style="display:none;cursor:pointer"></canvas>
     <table>
       <thead><tr id="d-head"><th>Sector</th><th>MT</th><th>U</th><th>V</th><th>Share</th></tr></thead>
       <tbody id="d-rows"></tbody>
@@ -2008,14 +2008,36 @@ function densCol(x){                                   // x in 0..1
   const i=Math.min(DENSRAMP.length-2,Math.floor(x)), f=x-i, a=DENSRAMP[i], b=DENSRAMP[i+1];
   return `rgb(${a.map((v,k)=>Math.round(v+(b[k]-v)*f)).join(",")})`;
 }
+// click the time-height graph (density heatmap or heading ribbon) to jump the
+// timeline to that phase; thHit carries the current column->frame-index layout.
+let thHit=null;
+(function(){
+  const c=document.getElementById("thheat");
+  c.addEventListener("pointerdown",e=>{
+    if(!thHit||!thHit.ti.length) return;
+    const r=c.getBoundingClientRect();
+    let col=Math.floor((e.clientX-r.left-thHit.padL)/thHit.cw);
+    col=Math.max(0,Math.min(thHit.ti.length-1,col));
+    const target=thHit.ti[col];
+    if(target!=null && target!==idx){
+      idx=target;
+      const p=navList.indexOf(idx); if(p>=0) scrub.value=p;
+      grid=null; draw(); drawSpark(); redrawDetail();
+    }
+  });
+})();
 function drawTimeHeight(ri){
   const lbl=document.getElementById("thheat-lbl"), rc=document.getElementById("thheat");
-  if(!hasVH){ lbl.style.display="none"; rc.style.display="none"; return; }
-  const NDAYS=21, cols=[];
-  // gather this radar's records for the most recent frames (chronological)
+  if(!hasVH){ lbl.style.display="none"; rc.style.display="none"; thHit=null; return; }
+  const NDAYS=7, cols=[];
+  // gather this radar's records for the recent frames (chronological)
   const byRad = i => FRAMES[i].find(r=>r[I_RI]===ri);
   const days=[]; for(const t of TIMES){ const d=t.split("|")[0]; if(!days.includes(d)) days.push(d); }
-  const keep = new Set(days.slice(-NDAYS));
+  // rolling window: the scrubbed day and the 6 days before it, so it tracks the
+  // timeline as you scrub instead of always sitting at the end of the record.
+  const curDay=TIMES[idx].split("|")[0];
+  let ci=days.indexOf(curDay); if(ci<0) ci=days.length-1;
+  const keep = new Set(days.slice(Math.max(0,ci-NDAYS+1), ci+1));
   let peak=0;
   for(let i=0;i<TIMES.length;i++){
     if(!keep.has(TIMES[i].split("|")[0])) continue;
@@ -2034,12 +2056,13 @@ function drawTimeHeight(ri){
         mt = r[I_MT];
       }
     }
-    cols.push({key:TIMES[i], prof, has:!!r, u:cu, v:cv, mt, dir, bor});
+    cols.push({ti:i, key:TIMES[i], prof, has:!!r, u:cu, v:cv, mt, dir, bor});
   }
-  if(peak<=0){ lbl.style.display="none"; rc.style.display="none"; return; }
+  if(peak<=0){ lbl.style.display="none"; rc.style.display="none"; thHit=null; return; }
   lbl.style.display=""; rc.style.display="";
   const anyBor=cols.some(c=>c.bor);
-  lbl.innerHTML="Density &amp; heading over the last weeks &middot; altitude &times; time"
+  lbl.innerHTML="Density &amp; heading, last 7 days &middot; altitude &times; time &middot; "
+    +"<span style='color:#7C8AA3'>click to jump</span>"
     +(anyBor?" &middot; <span style='color:#E8A33D'>heading inferred from neighbours</span>":"");
   const d=Math.min(2,devicePixelRatio||1), w=rc.clientWidth, hgt=150;
   rc.width=w*d; rc.height=hgt*d; const g=rc.getContext("2d"); g.setTransform(d,0,0,d,0,0);
@@ -2047,6 +2070,7 @@ function drawTimeHeight(ri){
   const dirH=20;              // heading ribbon between the heatmap and the day axis
   const padL=30, padR=6, padT=6, padB=16, plotW=w-padL-padR, plotH=hgt-padT-padB-dirH;
   const cw=plotW/cols.length, ch=plotH/NH, lp=Math.log1p(peak);
+  thHit={padL, cw, ti: cols.map(c=>c.ti)};        // column -> frame index, for click-to-jump
   const anyDir=cols.some(c=>c.dir);
   for(let c=0;c<cols.length;c++){
     const x=padL+c*cw;
@@ -2137,7 +2161,7 @@ function drawHProfile(rec){
   const ok = dOnly ? hasVH : hasHeight;
   const H=[]; let peak=0;
   if(ok && rec) for(let i=0;i<NH;i++){ const v=(rec[base+i]||0)*(dOnly?scale:1); H.push(v); if(v>peak)peak=v; }
-  if(!ok || !rec || peak<=0){ lbl.style.display="none"; rc.style.display="none"; return; }
+  if(!ok || !rec || peak<=0){ lbl.style.display="none"; rc.style.display="none"; thHit=null; return; }
   lbl.textContent = densMode ? "Density by altitude"
                   : estTraffic ? "Traffic by altitude (est.)"
                   : "Traffic by altitude";
@@ -2165,6 +2189,17 @@ function drawHProfile(rec){
   const unit = densMode ? "birds/km\u00B2" : "birds/km";
   g.fillText("peak "+peak.toFixed(peak<10?1:0)+" "+unit+" at "+Math.round((H.indexOf(peak)*HBIN_M+HBASE_M+HBIN_M/2))+" m",padL+2,hgt-4);
 }
+// 8 placeholder sector rows so the wind-rose table keeps a constant height when a
+// frame has no direction data -- the detail panel then never jumps while scrubbing.
+function blankSectorRows(){
+  const tb=document.getElementById("d-rows"); tb.innerHTML="";
+  for(let i=0;i<NS;i++){
+    const tr=document.createElement("tr"); tr.className="z";
+    tr.innerHTML=`<td><span class="chip" style="background:#26334A"></span>${SEC[i]}</td>`
+      +"<td>—</td><td>—</td><td>—</td><td>—</td>";
+    tb.appendChild(tr);
+  }
+}
 function openDetail(ri){
   sel=ri; selUS=null;
   const f=frame(), rec=f.find(r=>r[I_RI]===ri);
@@ -2190,7 +2225,7 @@ function openDetail(ri){
     const est=borrowVector(rec);
     const dir = est ? SEC[Math.round(bearing(est.u,est.v)/45)%NS]+" "
                        +Math.round(bearing(est.u,est.v))+"\u00B0" : "\u2014";
-    document.getElementById("d-rows").innerHTML="";
+    blankSectorRows();
     g.fillStyle="rgba(150,214,199,.9)";
     g.font="600 12px "+getComputedStyle(document.body).fontFamily;
     g.textAlign="center"; g.fillText("density only",rc.clientWidth/2,98);
@@ -2208,9 +2243,10 @@ function openDetail(ri){
   }
   if(!rec||val(rec)<=0){
     document.getElementById("d-note").textContent="No usable data in this frame.";
+    blankSectorRows();
     g.fillStyle="#7C8AA3"; g.font="12px "+getComputedStyle(document.body).fontFamily;
     g.textAlign="center"; g.fillText("no data",rc.clientWidth/2,105);
-    drawHProfile(null); draw(); return;
+    drawHProfile(null); drawTimeHeight(ri); draw(); return;
   }
   const secs=sectors(rec), tot=secs.reduce((a,b)=>a+b,0)||1;
   const cx=rc.clientWidth/2, cy=105, rmax=84, peak=Math.max(...secs)||1;
