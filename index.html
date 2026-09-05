@@ -42,6 +42,16 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .splash-go:hover{filter:brightness(1.08)}
 .splash-foot{margin:16px 0 0;color:var(--muted);font-size:11.5px;line-height:1.5}
 
+/* desktop hover tooltip: describes the symbol / map area under the cursor */
+#maptip{position:fixed;z-index:20;pointer-events:none;max-width:240px;
+  background:var(--panel);backdrop-filter:blur(8px);border:1px solid var(--line);
+  border-radius:8px;padding:7px 10px;font-size:12px;line-height:1.45;color:var(--ink);
+  box-shadow:0 8px 24px rgba(0,0,0,.4);opacity:0;transition:opacity .09s}
+#maptip.on{opacity:1}
+#maptip .tip-id{font-weight:700;letter-spacing:.02em}
+#maptip .tip-sub{color:var(--ink-2)}
+#maptip .tip-hint{color:var(--muted);font-size:11px;margin-top:3px}
+
 #app{position:fixed;inset:0;display:grid;
   grid-template-columns:var(--rail) 1fr auto;grid-template-rows:1fr auto}
 #stage{grid-column:1/4;grid-row:1/3;position:relative}
@@ -273,6 +283,8 @@ document.documentElement.classList.add("railoff","tloff");
   addEventListener("keydown",function(e){ if(!sp.hidden && e.key==="Escape") close(); });
 })();
 </script>
+
+<div id="maptip"></div>
 
 <div id="app">
   <div id="stage">
@@ -2638,6 +2650,57 @@ cvP.addEventListener("click",e=>{
   else if(best!=null) openDetail(best);
   else if(ptOn) ptDrop(mx,my);               // empty map + traces on -> drop a puff
 });
+/* desktop hover: describe whatever symbol or map area is under the cursor */
+const maptip=document.getElementById("maptip");
+const canHover = matchMedia("(hover:hover) and (pointer:fine)").matches;
+function hideTip(){ maptip.classList.remove("on"); }
+function euReadout(i){
+  const R=RAD[i], rec=frame().find(r=>r[I_RI]===i);
+  let s=`<span class="tip-id">${R.id.toUpperCase()}</span> <span class="tip-sub">${R.cc.toUpperCase()}</span>`;
+  if(rec && val(rec)>0){ const[u,v]=netUV(rec), b=bearing(u,v);
+    s+=`<div class="tip-sub">${fmt(val(rec))} birds/km · ${SEC[Math.round(b/45)%NS]} ${Math.round(b)}° · ${rec[I_ALT]} m</div>`;
+  } else if(rec && isDensityOnly(rec)){ s+=`<div class="tip-sub">density only — heading borrowed</div>`; }
+  else s+=`<div class="tip-sub">no data this phase</div>`;
+  return s+`<div class="tip-hint">click for the full profile</div>`;
+}
+function usReadout(i){
+  const R=US_RAD[i], rec=(US_BINS[TIMES[idx]]||[]).find(r=>r[0]===i);
+  let s=`<span class="tip-id" style="color:#7FD8C4">${R.id.toUpperCase()}</span> <span class="tip-sub">US radar</span>`;
+  if(rec){ const b=(rec[2]||rec[3])?bearing(rec[2],rec[3]):null;
+    s+=`<div class="tip-sub">${fmt(rec[1])} traffic`+(b!=null?` · ${SEC[Math.round(b/45)%NS]} ${Math.round(b)}°`:``)+`</div>`;
+  } else s+=`<div class="tip-sub">no data this phase</div>`;
+  return s+`<div class="tip-hint">click for the detail panel</div>`;
+}
+if(canHover){
+  cvP.addEventListener("pointermove",e=>{
+    if(drag){ hideTip(); return; }
+    const[mx,my]=stageXY(e);
+    let best=null,bd=14; RAD.forEach((R,i)=>{ const d=Math.hypot(px(R.lon)-mx,py(R.lat)-my); if(d<bd){bd=d;best=i;} });
+    let ub=null,ubd=14; if(showUS&&US_RAD) US_RAD.forEach((R,i)=>{ const d=Math.hypot(px(R.lon)-mx,py(R.lat)-my); if(d<ubd){ubd=d;ub=i;} });
+    let html=null, onRadar=false;
+    if(ub!=null && (best==null||ubd<bd)){ html=usReadout(ub); onRadar=true; }
+    else if(best!=null){ html=euReadout(best); onRadar=true; }
+    else {
+      const lon=BB.x0+((mx-view.x)/view.k-OX)/SC, lat=unmerc(BB.y1-((my-view.y)/view.k-OY)/SC);
+      const g=ptField(), w=g?ptSample(g,lon,lat):null;
+      if(w){ const sp=Math.hypot(w[0],w[1]), wb=(bearing(w[0],w[1])+180)%360;   // wind blows FROM
+        html=`<span class="tip-sub">${Math.abs(lat).toFixed(1)}°${lat>=0?"N":"S"} ${Math.abs(lon).toFixed(1)}°${lon>=0?"E":"W"}</span>`
+            +`<div class="tip-sub">wind ${sp.toFixed(0)} m/s from ${SEC[Math.round(wb/45)%NS]}</div>`
+            +(ptOn?`<div class="tip-hint">click to release a swarm</div>`:``);
+      }
+    }
+    cvP.style.cursor = onRadar ? "pointer" : "";
+    if(!html){ hideTip(); return; }
+    maptip.innerHTML=html; maptip.classList.add("on");
+    const pad=14, tw=maptip.offsetWidth, th=maptip.offsetHeight;
+    let x=e.clientX+pad, y=e.clientY+pad;
+    if(x+tw>innerWidth-6) x=e.clientX-pad-tw;
+    if(y+th>innerHeight-6) y=e.clientY-pad-th;
+    maptip.style.left=x+"px"; maptip.style.top=y+"px";
+  });
+  cvP.addEventListener("pointerleave",hideTip);
+  cvP.addEventListener("pointerdown",hideTip);
+}
 cvP.addEventListener("dblclick",e=>{ const [mx,my]=stageXY(e); zoomAt(mx,my,2); });
 cvP.addEventListener("contextmenu",e=>{        // right-click: seed a departure line
   if(!ptOn) return;                            // traces off -> normal context menu
