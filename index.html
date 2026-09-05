@@ -1605,7 +1605,12 @@ function drawFrost(g, rings){
     path.closePath();
   }
   g.save();
-  g.clip(path, "evenodd");
+  // nonzero (not evenodd): the same-date polar frames are merged in, and their
+  // rings can OVERLAP the normal-phase frost at the midnight-sun transition band;
+  // evenodd cancelled that overlap into a hole (a strange cut-out in the far
+  // north). nonzero unions same-winding rings while still keeping genuine
+  // interior holes (find_contours gives those the opposite winding).
+  g.clip(path);
   g.fillStyle="rgba(66,132,214,.22)"; g.fillRect(0,0,W,H);       // cold blue wash
   g.strokeStyle="rgba(150,200,245,.55)"; g.lineWidth=1;          // diagonal hatch
   g.beginPath();
@@ -1623,7 +1628,7 @@ function drawFronts(g, rings){
     for(let i=1;i<ring.length;i++) g.lineTo(px(ring[i][0]), py(ring[i][1]));
     g.closePath();
   }
-  g.fillStyle="rgba(150,152,160,.26)"; g.fill("evenodd");
+  g.fillStyle="rgba(150,152,160,.26)"; g.fill();                 // nonzero: union overlaps, keep true holes
   g.strokeStyle="rgba(196,210,230,.7)"; g.lineWidth=1.1; g.lineJoin="round"; g.stroke();
 }
 // Classical wind barb, NH convention.
