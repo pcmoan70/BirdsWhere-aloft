@@ -345,25 +345,29 @@ document.documentElement.classList.add("railoff","tloff");
     </div>
 
     <div class="grp" id="wxgrp">
-      <div class="lbl">Weather features (ECMWF)</div>
-      <label class="wxchk"><input type="checkbox" id="wxwind" checked> Wind (barbs)</label>
+      <div class="lbl">Weather (ECMWF)</div>
+      <label class="wxchk"><input type="checkbox" id="wxwind" checked> Wind</label>
       <div class="seg" id="wxlevel" style="margin:2px 0 4px">
         <button data-l="sfc" aria-pressed="false">Surface</button>
         <button data-l="925" aria-pressed="true">Migration band</button>
       </div>
-      <label class="wxchk"><input type="checkbox" id="wxfront" checked> Precip front</label>
+      <label class="wxchk"><input type="checkbox" id="wxfront" checked> Precipitation</label>
       <label class="wxchk"><input type="checkbox" id="wxfrost" checked> Ground frost</label>
-      <label class="wxchk"><input type="checkbox" id="wxptcl" checked> Particle traces &mdash; click drops a <span style="color:#A855F7">purple</span> persistent swarm; right-click: east-coast line</label>
-      <label class="wxchk"><input type="checkbox" id="wxptceu"> European departure line on right-click <span style="color:#FFB05C">(amber)</span></label>
-      <label class="wxchk"><input type="checkbox" id="wxshadow" checked> Night shadow (solar terminator)</label>
-      <label class="wxchk"><input type="checkbox" id="wxshadowanim" checked> &mdash; also during playback</label>
-      <label class="wxchk"><input type="checkbox" id="wxus"> US east-coast radars (NEXRAD) <span style="color:#7FD8C4">(teal)</span></label>
+      <label class="wxchk"><input type="checkbox" id="wxshadow" checked> Night shadow</label>
+      <label class="wxchk"><input type="checkbox" id="wxshadowanim" checked> &mdash; during playback</label>
+
+      <div class="lbl" style="margin-top:10px">US radars (NEXRAD)</div>
+      <label class="wxchk"><input type="checkbox" id="wxus"> Show <span style="color:#7FD8C4">(teal)</span></label>
       <div id="uslegend" style="margin:1px 0 4px">
         <div class="ramp" style="background:linear-gradient(90deg,rgba(127,216,196,.14),rgba(127,216,196,.95))"></div>
         <div class="rampx"><span>less</span><span>traffic volume</span><span>more</span></div>
       </div>
-      <label class="wxchk"><input type="checkbox" id="wxptradar"> Radar-driven release, automatic (size &rarr; endurance)</label>
-      <button type="button" id="ptclear" class="ptclear">Clear particle swarms</button>
+      <label class="wxchk"><input type="checkbox" id="wxptradar"> Radar-driven particle release</label>
+
+      <div class="lbl" style="margin-top:10px">Particle traces</div>
+      <label class="wxchk"><input type="checkbox" id="wxptcl" checked> Show &mdash; click &middot; right-click to seed</label>
+      <label class="wxchk"><input type="checkbox" id="wxptceu"> European departure line <span style="color:#FFB05C">(amber)</span></label>
+      <button type="button" id="ptclear" class="ptclear">Clear swarms</button>
       <p class="note">The 0.25&deg; ECMWF weather, reduced to what matters for migration: <b>wind</b> barbs in the migration band &mdash; the strongest of the 925/850&nbsp;hPa levels (~800&ndash;1500&nbsp;m), shown from 5&nbsp;m/s &mdash; or at the surface (10&nbsp;m), toggle above; the leading edge of <b>precipitation</b> (a barrier birds won't cross), and where the <b>ground is freezing</b> (&le;0&nbsp;&deg;C &mdash; blue hatched regions, distinct from grey precipitation; a frost triggers departures). <b>Particle traces</b>: click the map to release a <span style="color:#A855F7">purple</span>, persistent swarm (no lifetime) that rides the migration-band wind in lockstep with the timeline: step, scrub or play the dates to advect them (one phase &asymp; 3.4&nbsp;h of transport; a still timeline is a still picture). Right-click seeds a line of tracers along the American Atlantic coast, Miami to northern Labrador &mdash; the Nearctic departure line (<span style="color:#7FD8C4">teal</span>). Enable <b>European departure line</b> above and the same right-click also seeds the Atlantic-facing European seaboard, North Cape to Morocco, in <span style="color:#FFB05C">amber</span> (zoom out to watch). <b>Night shadow</b> shades the sunlit day side warm and the night side dark for each date/phase &mdash; because the map spans an ocean, a "night" phase falls at very different clock times in America and Europe, and the terminator makes that offset visible. <b>US east-coast radars (NEXRAD)</b> adds the American seaboard radars in <span style="color:#7FD8C4">teal</span> (matching the Nearctic tracers); each disc grows and brightens with its <b>traffic volume</b> on its own uncalibrated density scale (the teal ramp in settings; each radar binned on its own local night), and they light up when the shadow reaches them. Enable <b>Radar-driven release</b> and the radars seed tracers along the American <b>shoreline</b> automatically as the timeline advances (no right-click needed): each radar releases about <b>one tracer per 250 birds</b> of its measured traffic, spread along its shoreline &mdash; daytime detections (mostly insects and local movement) release at a quarter of that &mdash; and each tracer draws its own <b>size</b> from the radar-night's spread of flight speeds (radar airspeed &mdash; ground speed minus wind &mdash; stands in for size, which sets endurance: a small passerine a few days, a wader up to two weeks), so one release carries a mix of guilds. The released tracers are drawn <span style="color:#7FD8C4">teal</span> to match the US layer.</p>
     </div>
 
@@ -2362,7 +2366,7 @@ document.getElementById("ovlcut").addEventListener("input",e=>ovlSetCutoff(+e.ta
   document.getElementById("wxfront").addEventListener("change",e=>{ wxPrecip=e.target.checked; draw(); });
   document.getElementById("wxfrost").addEventListener("change",e=>{ wxTemp=e.target.checked; draw(); });
   document.getElementById("wxptcl").addEventListener("change",e=>{
-    ptOn=e.target.checked; if(!ptOn) ptClear();
+    ptOn=e.target.checked; if(!ptOn && !ptRadar) ptClear();   // keep radar swarms if radar release is on
   });
   document.getElementById("wxptceu").addEventListener("change",e=>{ ptEU=e.target.checked; });
   document.getElementById("wxshadow").addEventListener("change",e=>{ showShadow=e.target.checked; draw(); });
@@ -2373,7 +2377,7 @@ document.getElementById("ovlcut").addEventListener("input",e=>ovlSetCutoff(+e.ta
   usEl.addEventListener("change",e=>{ showUS=e.target.checked; draw(); });
   const prEl=document.getElementById("wxptradar");
   prEl.disabled=!US_BINS;                                      // needs NEXRAD data
-  prEl.addEventListener("change",e=>{ ptRadar=e.target.checked; });
+  prEl.addEventListener("change",e=>{ ptRadar=e.target.checked; if(!ptOn && !ptRadar) ptClear(); });
   const pcEl=document.getElementById("ptclear");
   if(pcEl) pcEl.addEventListener("click",()=>ptClear());   // clear all particle swarms
 })();
@@ -2561,7 +2565,7 @@ function loop(now){
   const dt=now-last; last=now;
   if(mode==="flow"){ if(!grid){buildGrid(); if(!parts.length) seedParticles(2600);}
                      stepFlow(); }
-  if(ptOn) ptStep();
+  if(ptOn || ptRadar) ptStep();          // radar-driven release runs independent of the master traces toggle
   if(playing){ acc+=dt;
     if(acc>360){ acc=0;
       if(navPos()>=navList.length-1){         // stop at the last phase of the
