@@ -362,13 +362,16 @@ document.documentElement.classList.add("railoff","tloff");
         <div class="ramp" style="background:linear-gradient(90deg,rgba(127,216,196,.14),rgba(127,216,196,.95))"></div>
         <div class="rampx"><span>less</span><span>traffic volume</span><span>more</span></div>
       </div>
-      <label class="wxchk"><input type="checkbox" id="wxptradar"> Radar-driven particle release</label>
+      <label class="wxchk"><input type="checkbox" id="wxptradar"> Radar-driven particle release <span style="color:#7FD8C4">(teal)</span></label>
+
+      <div class="lbl" style="margin-top:10px">European radars (aloft)</div>
+      <label class="wxchk"><input type="checkbox" id="wxptradareu"> Radar-driven particle release <span style="color:#FFB05C">(amber)</span></label>
 
       <div class="lbl" style="margin-top:10px">Particle traces</div>
       <label class="wxchk"><input type="checkbox" id="wxptcl" checked> Show &mdash; click &middot; right-click to seed</label>
       <label class="wxchk"><input type="checkbox" id="wxptceu"> European departure line <span style="color:#FFB05C">(amber)</span></label>
       <button type="button" id="ptclear" class="ptclear">Clear swarms</button>
-      <p class="note">The 0.25&deg; ECMWF weather, reduced to what matters for migration: <b>wind</b> barbs in the migration band &mdash; the strongest of the 925/850&nbsp;hPa levels (~800&ndash;1500&nbsp;m), shown from 5&nbsp;m/s &mdash; or at the surface (10&nbsp;m), toggle above; the leading edge of <b>precipitation</b> (a barrier birds won't cross), and where the <b>ground is freezing</b> (&le;0&nbsp;&deg;C &mdash; blue hatched regions, distinct from grey precipitation; a frost triggers departures). <b>Particle traces</b>: click the map to release a <span style="color:#A855F7">purple</span>, persistent swarm (no lifetime) that rides the migration-band wind in lockstep with the timeline: step, scrub or play the dates to advect them (one phase &asymp; 3.4&nbsp;h of transport; a still timeline is a still picture). Right-click seeds a line of tracers along the American Atlantic coast, Miami to northern Labrador &mdash; the Nearctic departure line (<span style="color:#7FD8C4">teal</span>). Enable <b>European departure line</b> above and the same right-click also seeds the Atlantic-facing European seaboard, North Cape to Morocco, in <span style="color:#FFB05C">amber</span> (zoom out to watch). <b>Night shadow</b> shades the sunlit day side warm and the night side dark for each date/phase &mdash; because the map spans an ocean, a "night" phase falls at very different clock times in America and Europe, and the terminator makes that offset visible. <b>US east-coast radars (NEXRAD)</b> adds the American seaboard radars in <span style="color:#7FD8C4">teal</span> (matching the Nearctic tracers); each disc grows and brightens with its <b>traffic volume</b> on its own uncalibrated density scale (the teal ramp in settings; each radar binned on its own local night), and they light up when the shadow reaches them. Enable <b>Radar-driven release</b> and the radars seed tracers along the American <b>shoreline</b> automatically as the timeline advances (no right-click needed): each radar releases about <b>one tracer per 250 birds</b> of its measured traffic, spread along its shoreline &mdash; daytime detections (mostly insects and local movement) release at a quarter of that &mdash; and each tracer draws its own <b>size</b> from the radar-night's spread of flight speeds (radar airspeed &mdash; ground speed minus wind &mdash; stands in for size, which sets endurance: a small passerine a few days, a wader up to two weeks), so one release carries a mix of guilds. The released tracers are drawn <span style="color:#7FD8C4">teal</span> to match the US layer.</p>
+      <p class="note">The 0.25&deg; ECMWF weather, reduced to what matters for migration: <b>wind</b> barbs in the migration band &mdash; the strongest of the 925/850&nbsp;hPa levels (~800&ndash;1500&nbsp;m), shown from 5&nbsp;m/s &mdash; or at the surface (10&nbsp;m), toggle above; the leading edge of <b>precipitation</b> (a barrier birds won't cross), and where the <b>ground is freezing</b> (&le;0&nbsp;&deg;C &mdash; blue hatched regions, distinct from grey precipitation; a frost triggers departures). <b>Particle traces</b>: click the map to release a <span style="color:#A855F7">purple</span>, persistent swarm (no lifetime) that rides the migration-band wind in lockstep with the timeline: step, scrub or play the dates to advect them (one phase &asymp; 3.4&nbsp;h of transport; a still timeline is a still picture). Right-click seeds a line of tracers along the American Atlantic coast, Miami to northern Labrador &mdash; the Nearctic departure line (<span style="color:#7FD8C4">teal</span>). Enable <b>European departure line</b> above and the same right-click also seeds the Atlantic-facing European seaboard, North Cape to Morocco, in <span style="color:#FFB05C">amber</span> (zoom out to watch). <b>Night shadow</b> shades the sunlit day side warm and the night side dark for each date/phase &mdash; because the map spans an ocean, a "night" phase falls at very different clock times in America and Europe, and the terminator makes that offset visible. <b>US east-coast radars (NEXRAD)</b> adds the American seaboard radars in <span style="color:#7FD8C4">teal</span> (matching the Nearctic tracers); each disc grows and brightens with its <b>traffic volume</b> on its own uncalibrated density scale (the teal ramp in settings; each radar binned on its own local night), and they light up when the shadow reaches them. Enable <b>Radar-driven release</b> and the radars seed tracers along the American <b>shoreline</b> automatically as the timeline advances (no right-click needed): each radar releases about <b>one tracer per 250 birds</b> of its measured traffic, spread along its shoreline &mdash; daytime detections (mostly insects and local movement) release at a quarter of that &mdash; and each tracer draws its own <b>size</b> from the radar-night's spread of flight speeds (radar airspeed &mdash; ground speed minus wind &mdash; stands in for size, which sets endurance: a small passerine a few days, a wader up to two weeks), so one release carries a mix of guilds. The released tracers are drawn <span style="color:#7FD8C4">teal</span> to match the US layer. The same automatic release is available for the <b>European aloft radars</b>: enable <b>Radar-driven release</b> under <i>European radars</i> and the Atlantic-facing seaboard (North Cape to Morocco) seeds <span style="color:#FFB05C">amber</span> tracers each phase, one per 250 birds/km of each radar's traffic. Both radar releases run <b>independently of the <i>Show</i> traces toggle</b> &mdash; turn traces off and the radar swarms keep flowing (clearing only when every release is off).</p>
     </div>
 
     <div class="grp" id="routesgrp">
@@ -1290,7 +1293,7 @@ function stepFlow(){
    puff of passive tracers; they ride the current frame's full 925 hPa wind
    grid (frame `wgrid`: stride-6 deci-m/s ints, null = no coverage) and leave
    fading trails on their own canvas. One real second = one simulated hour. */
-let ptOn=true, ptEU=false, ptRadar=false, ptParts=[], ptView=null;   // traces on; EU line + radar-release off
+let ptOn=true, ptEU=false, ptRadar=false, ptRadarEU=false, ptParts=[], ptView=null;   // traces on; EU line + US/EU radar-release off
 const PT_MAX=4000;
 const DAYTIME_FACTOR=0.25;   // daytime radar detections (mostly insects/local) release at 25% of a night phase
 const PT_COL_NA="127,216,196";                 // Nearctic tracers: teal
@@ -1462,6 +1465,50 @@ function ptSeedRadar(i=idx){
   }
   return made;
 }
+let _ptCoastDenseEU=null;
+function ptCoastDenseEU(){                         // European seaboard sampled every ~0.25 deg
+  if(_ptCoastDenseEU) return _ptCoastDenseEU;
+  const out=[];
+  for(let i=0;i<PT_COAST_EU.length-1;i++){
+    const [la0,lo0]=PT_COAST_EU[i],[la1,lo1]=PT_COAST_EU[i+1];
+    const n=Math.max(2,Math.round(Math.hypot(la1-la0,lo1-lo0)/0.25));
+    for(let k=0;k<n;k++){ const t=k/n; out.push([la0+(la1-la0)*t, lo0+(lo1-lo0)*t]); }
+  }
+  _ptCoastDenseEU=out; return out;
+}
+// European counterpart of ptSeedRadar: seed AMBER tracers along the Atlantic-facing
+// European seaboard for the current phase, from the aloft radar traffic (birds/km),
+// ~1 tracer per 250 birds, attributed to the nearest radar. Europe carries no
+// per-radar velocity spread, so each dot's endurance is drawn from the guild prior.
+function ptSeedRadarEU(i=idx){
+  const recs=FRAMES[i]; if(!recs||!recs.length) return 0;
+  const dayf=(()=>{const ph=phaseOf(i); return (ph==="day"||ph==="polar_day")?DAYTIME_FACTOR:1;})();
+  const rad=[];
+  for(const r of recs){ const R=RAD[r[I_RI]]; if(!R) continue;
+    const mt=r[I_MT8]||0; if(mt>0) rad.push({R, mt}); }
+  if(!rad.length) return 0;
+  for(const x of rad) x.pts=[];
+  for(const [la,lo] of ptCoastDenseEU()){
+    let best=null, bd=1e9;
+    for(const x of rad){ const d=Math.hypot(la-x.R.lat,(lo-x.R.lon)*Math.cos(la*Math.PI/180));
+      if(d<bd){ bd=d; best=x; } }
+    if(best && bd<=4) best.pts.push([la,lo]);      // EU radars can sit inland -> wider than US
+  }
+  let made=0;
+  for(const x of rad){
+    if(!x.pts.length) continue;
+    const N=Math.round(x.mt/250*dayf);
+    for(let k=0;k<N && ptParts.length<PT_MAX;k++){
+      const [la,lo]=x.pts[(Math.random()*x.pts.length)|0];
+      ptParts.push({lon:lo+(Math.random()-0.5)*0.3, lat:la+(Math.random()-0.5)*0.3,
+                    age:0, life:guildLifeFromPrior(), u:0, v:0,
+                    du:(Math.random()-0.5)*1.5, dv:(Math.random()-0.5)*1.5,
+                    col:PT_COL_EU});             // amber (matches the European departure line)
+      made++;
+    }
+  }
+  return made;
+}
 // Tracers move in LOCKSTEP with the timeline: advection happens only when the
 // frame index changes (scrub, arrows or play), one solar phase of transport
 // per frame stepped, using each stepped frame's own wind. A static timeline is
@@ -1541,11 +1588,12 @@ function ptStep(){
   if(idx===ptLastIdx) return;                    // no time step
   // with automatic radar release on, step forward even from an empty field:
   // each phase seeds fresh shoreline tracers from the radars before advecting.
-  if(!ptParts.length && !ptRadar){ ptLastIdx=idx; return; }
+  if(!ptParts.length && !ptRadar && !ptRadarEU){ ptLastIdx=idx; return; }
   const from=ptLastIdx; ptLastIdx=idx;
   const steps=Math.min(idx-from, 90);            // cap pathological jumps
   for(let f=from; f<from+steps; f++){
-    if(ptRadar) ptSeedRadar(f);                  // automatic per-phase shoreline release
+    if(ptRadar) ptSeedRadar(f);                  // automatic per-phase US shoreline release
+    if(ptRadarEU) ptSeedRadarEU(f);              // automatic per-phase European seaboard release
     ptAdvect(ptWgridAt(f), ptPhaseHours(f));     // each stepped frame's own wind
   }
 }
@@ -2366,7 +2414,7 @@ document.getElementById("ovlcut").addEventListener("input",e=>ovlSetCutoff(+e.ta
   document.getElementById("wxfront").addEventListener("change",e=>{ wxPrecip=e.target.checked; draw(); });
   document.getElementById("wxfrost").addEventListener("change",e=>{ wxTemp=e.target.checked; draw(); });
   document.getElementById("wxptcl").addEventListener("change",e=>{
-    ptOn=e.target.checked; if(!ptOn && !ptRadar) ptClear();   // keep radar swarms if radar release is on
+    ptOn=e.target.checked; if(!ptOn && !ptRadar && !ptRadarEU) ptClear();   // keep radar swarms if a radar release is on
   });
   document.getElementById("wxptceu").addEventListener("change",e=>{ ptEU=e.target.checked; });
   document.getElementById("wxshadow").addEventListener("change",e=>{ showShadow=e.target.checked; draw(); });
@@ -2377,7 +2425,9 @@ document.getElementById("ovlcut").addEventListener("input",e=>ovlSetCutoff(+e.ta
   usEl.addEventListener("change",e=>{ showUS=e.target.checked; draw(); });
   const prEl=document.getElementById("wxptradar");
   prEl.disabled=!US_BINS;                                      // needs NEXRAD data
-  prEl.addEventListener("change",e=>{ ptRadar=e.target.checked; if(!ptOn && !ptRadar) ptClear(); });
+  prEl.addEventListener("change",e=>{ ptRadar=e.target.checked; if(!ptOn && !ptRadar && !ptRadarEU) ptClear(); });
+  document.getElementById("wxptradareu").addEventListener("change",e=>{
+    ptRadarEU=e.target.checked; if(!ptOn && !ptRadar && !ptRadarEU) ptClear(); });   // European seaboard release
   const pcEl=document.getElementById("ptclear");
   if(pcEl) pcEl.addEventListener("click",()=>ptClear());   // clear all particle swarms
 })();
@@ -2565,7 +2615,7 @@ function loop(now){
   const dt=now-last; last=now;
   if(mode==="flow"){ if(!grid){buildGrid(); if(!parts.length) seedParticles(2600);}
                      stepFlow(); }
-  if(ptOn || ptRadar) ptStep();          // radar-driven release runs independent of the master traces toggle
+  if(ptOn || ptRadar || ptRadarEU) ptStep();     // radar-driven release runs independent of the master traces toggle
   if(playing){ acc+=dt;
     if(acc>360){ acc=0;
       if(navPos()>=navList.length-1){         // stop at the last phase of the
@@ -2592,7 +2642,7 @@ document.getElementById("play").textContent="\u25B6";
 requestAnimationFrame(loop);
 // debug/introspection handle (module scope isn't global)
 window.__aloft = { DATA, WX, OVL, wxFrame, ovlBlend, draw, drawBase, frame, splitKey,
-  ptDrop, ptField, ptSample, ptStep, ptSeedCoast, ptSeedLine, ptSeedRadar, aspToLife, PT_COAST_EU,
+  ptDrop, ptField, ptSample, ptStep, ptSeedCoast, ptSeedLine, ptSeedRadar, ptSeedRadarEU, aspToLife, PT_COAST_EU,
   get ptOn(){return ptOn}, get ptParts(){return ptParts},
   get ptEU(){return ptEU}, set ptEU(v){ptEU=v},
   px, py, windBarb, snowflake, ctxWx, ctxB, ctxP,
