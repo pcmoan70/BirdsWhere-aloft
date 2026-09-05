@@ -22,6 +22,26 @@ body{background:var(--ground);color:var(--ink);font-family:var(--f-sans);
 button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
+/* intro splash: shown on load (once per browser), the app's main points */
+#splash{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;
+  padding:24px;background:rgba(4,10,12,.74);backdrop-filter:blur(8px);animation:splashIn .3s ease}
+#splash[hidden]{display:none}
+@keyframes splashIn{from{opacity:0}to{opacity:1}}
+.splash-card{max-width:540px;width:100%;max-height:calc(100% - 40px);overflow:auto;
+  background:linear-gradient(180deg,rgba(13,43,40,.97),rgba(10,16,27,.97));
+  border:1px solid var(--line);border-radius:16px;padding:28px 30px;
+  box-shadow:0 24px 60px rgba(0,0,0,.55)}
+.splash-card h2{margin:0 0 3px;font-size:26px;letter-spacing:.01em}
+.splash-card .tag{margin:0 0 20px;color:var(--ink-2);font-size:15px;line-height:1.45}
+.splash-list{list-style:none;margin:0 0 22px;padding:0;display:grid;gap:14px}
+.splash-list li{padding-left:14px;border-left:2px solid var(--accent-dim);
+  font-size:14px;line-height:1.55;color:var(--ink-2)}
+.splash-list b{color:var(--accent);font-weight:600}
+.splash-go{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#052420;
+  font-weight:700;padding:11px 20px;border-radius:10px;font-size:15px}
+.splash-go:hover{filter:brightness(1.08)}
+.splash-foot{margin:16px 0 0;color:var(--muted);font-size:11.5px;line-height:1.5}
+
 #app{position:fixed;inset:0;display:grid;
   grid-template-columns:var(--rail) 1fr auto;grid-template-rows:1fr auto}
 #stage{grid-column:1/4;grid-row:1/3;position:relative}
@@ -221,6 +241,37 @@ details.cred summary:hover{color:var(--ink-2)}
 /* start with the rail and timeline collapsed so the map fills the screen;
    applied before first paint so nothing animates shut on load */
 document.documentElement.classList.add("railoff","tloff");
+</script>
+
+<div id="splash" hidden>
+  <div class="splash-card" role="dialog" aria-modal="true" aria-label="About Migration Aloft">
+    <h2>Migration Aloft</h2>
+    <p class="tag">Nocturnal bird migration across the North Atlantic, measured live by weather radar.</p>
+    <ul class="splash-list">
+      <li><b>Radars, live.</b> Weather radars across Europe and the US east coast show where birds
+        are aloft each night. Every arrow points the way they&rsquo;re heading, sized by traffic
+        &mdash; click any radar for its full profile.</li>
+      <li><b>Move through time.</b> Scrub the timeline or press play to travel through nights and
+        solar phases &mdash; most migration happens after dark.</li>
+      <li><b>See the weather.</b> Wind, precipitation and frost overlays reveal what pushes birds
+        around, and a night-shadow band tracks sunset across the ocean.</li>
+      <li><b>Follow the wind.</b> Click the map to release particle traces &mdash; swarms that drift
+        with the wind in lockstep with the timeline.</li>
+    </ul>
+    <button type="button" class="splash-go" id="splashgo">Explore the map &rarr;</button>
+    <p class="splash-foot">Data: aloftdata.eu &middot; NOAA NEXRAD &middot; ECMWF &nbsp;&middot;&nbsp; full guide in the menu (top-left)</p>
+  </div>
+</div>
+<script>
+(function(){
+  var sp=document.getElementById("splash"); if(!sp) return;
+  var seen=false; try{ seen=localStorage.getItem("aloft_splash_v1")==="1"; }catch(e){}
+  if(!seen) sp.hidden=false;                                   // first visit this browser -> show
+  function close(){ sp.hidden=true; try{ localStorage.setItem("aloft_splash_v1","1"); }catch(e){} }
+  document.getElementById("splashgo").addEventListener("click",close);
+  sp.addEventListener("click",function(e){ if(e.target===sp) close(); });   // click backdrop
+  addEventListener("keydown",function(e){ if(!sp.hidden && e.key==="Escape") close(); });
+})();
 </script>
 
 <div id="app">
