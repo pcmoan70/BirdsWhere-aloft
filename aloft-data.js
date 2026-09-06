@@ -28,7 +28,9 @@
       // --- migration: all days, concatenated in chronological (manifest) order ---
       const migDays = manifest.days || [];
       const [radars, ...migTiles] = await Promise.all([
-        AloftTiles.json(base + "radars.json", { immutable: false }),
+        // versioned: the radar index changes with the radar set, and the version now
+        // covers it, so it must bust in lockstep with the migration tiles it indexes
+        AloftTiles.json(base + "radars.json" + V, { immutable: true }),
         ...migDays.map(d => AloftTiles.json(base + "migration/" + d + ".json" + V, { immutable: true })),
       ]);
       const DATA = { meta: manifest.migration.meta, radars: radars.radars, times: [], frames: [] };
