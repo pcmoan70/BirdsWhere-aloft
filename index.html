@@ -51,6 +51,8 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 #maptip .tip-id{font-weight:700;letter-spacing:.02em}
 #maptip .tip-sub{color:var(--ink-2)}
 #maptip .tip-hint{color:var(--muted);font-size:11px;margin-top:3px}
+.dstat{flex:none;align-self:center;font-size:11px;color:var(--warn);white-space:nowrap;opacity:.9}
+.dstat:empty{display:none}
 
 #app{position:fixed;inset:0;display:grid;
   grid-template-columns:var(--rail) 1fr auto;grid-template-rows:1fr auto}
@@ -563,6 +565,7 @@ document.documentElement.classList.add("railoff","tloff");
         <button data-d="phase" aria-pressed="true">Phases</button>
         <button data-d="day" aria-pressed="false">Whole day</button>
       </div>
+      <span id="datastatus" class="dstat" role="status"></span>
       <div id="total"></div>
     </div>
     <input id="scrub" type="range" min="0" value="0" step="1"
@@ -628,6 +631,24 @@ const NS    = SEC.length;
 const RAD   = DATA.radars;
 const PH_TIMES = DATA.times, PH_FRAMES = DATA.frames;
 let TIMES = PH_TIMES, FRAMES = PH_FRAMES;   // active set: per-phase or whole-day
+
+// Extend the timeline to dates only WEATHER covers -- ECMWF can run a few days
+// past the last radar night. Those frames carry NO radar records (empty), so the
+// scrubber still reaches date DT and the status line flags the missing radar.
+(function(){
+  if(!WX_HAS || !WX.frames.length || !PH_TIMES.length) return;
+  const lastRadar = PH_TIMES[PH_TIMES.length-1].split("|")[0];
+  const b=new Date(lastRadar+"T00:00:00Z"); b.setUTCDate(b.getUTCDate()+14);
+  const bound=b.toISOString().slice(0,10);                 // cap the reach (ignore far/stray dates)
+  const phIdx=DATA.meta.phases, seen=new Set(PH_TIMES), add=[];
+  for(const f of WX.frames){
+    if(f.date<=lastRadar || f.date>bound) continue;
+    const pi=phIdx.indexOf(f.phase); if(pi<0) continue;
+    const key=f.date+"|"+pi; if(seen.has(key)) continue; seen.add(key); add.push(key);
+  }
+  add.sort((a,b)=>{const[da,pa]=a.split("|"),[db,pb]=b.split("|");return da<db?-1:da>db?1:(+pa-+pb);});
+  for(const key of add){ PH_TIMES.push(key); PH_FRAMES.push([]); }   // empty radar frame
+})();
 
 /* record layout:
    [ri, mt, mt8, alt, pct, n_ts, hours, t_start_min, t_end_min, sun_ref,
@@ -1882,7 +1903,7 @@ function draw(){
     else { ctxP.beginPath(); ctxP.arc(x,y,1.6,0,7);
            ctxP.fillStyle="rgba(232,237,245,.35)"; ctxP.fill(); }
   }
-  RAD.forEach((R,i)=>{
+  if(f.length) RAD.forEach((R,i)=>{                        // skip entirely on a radar-less (weather-only) date
     if(seen.has(i)) return;
     if(R.us && !showUS) return;                           // US layer hidden
     const x=px(R.lon), y=py(R.lat);
@@ -1894,7 +1915,22 @@ function draw(){
     ctxP.strokeStyle=R.us?"#7FD8C4":"#E8A33D";           // teal ring for a US radar
     ctxP.lineWidth=1.3; ctxP.stroke();
   }
-  stats();
+  stats(); updateDataStatus();
+}
+// Flag which data sources have NOTHING for the current date/phase, beside the
+// Phases/Whole-day toggle -- so a weather-only date past the radar (or a radar
+// gap) reads as absent rather than as a blank map.
+function updateDataStatus(){
+  const el=document.getElementById("datastatus"); if(!el) return;
+  let eu=false, us=false;
+  for(const r of frame()){ const R=RAD[r[I_RI]]; if(!R) continue;
+    if(R.us) us=true; else eu=true; }
+  const hasWx = WX_HAS && wxIndex[splitKey(TIMES[idx])[0]+"|"+wxPhaseName(idx)]!=null;
+  const miss=[];
+  if(!eu) miss.push("European radar");
+  if(!us) miss.push("US radar");
+  if(!hasWx) miss.push("weather");
+  el.textContent = miss.length ? "no "+miss.join(" · no ") : "";
 }
 
 /* ---------- readouts ---------- */
@@ -2542,6 +2578,47 @@ cvP.addEventListener("click",e=>{
   if(best!=null) openDetail(best);
   else if(ptOn) ptDrop(mx,my);               // empty map + traces on -> drop a puff
 });
+// ---- local-condition sampling for the map-area hover tooltip ----
+function pointInRings(lon,lat,rings){             // even-odd ray cast (holes handled by parity)
+  let inside=false;
+  for(const ring of rings){
+    for(let i=0,j=ring.length-1;i<ring.length;j=i++){
+      const xi=ring[i][0],yi=ring[i][1],xj=ring[j][0],yj=ring[j][1];
+      if(((yi>lat)!==(yj>lat)) && (lon<(xj-xi)*(lat-yi)/(yj-yi)+xi)) inside=!inside;
+    }
+  }
+  return inside;
+}
+function frostRingsNow(){                          // current frame's frost rings (+ polar merge, as drawn)
+  const wf=wxFrame(); if(!wf) return [];
+  let fr=(wf.frost||[]);
+  for(const ph of ["polar_day","polar_night"]){ const k=wxIndex[wf.date+"|"+ph];
+    if(k!=null && WX.frames[k]!==wf && WX.frames[k].frost) fr=fr.concat(WX.frames[k].frost); }
+  return fr;
+}
+function migDirAt(lon,lat){                         // density-weighted mean flight vector of nearby radars
+  let uu=0,vv=0,ws=0;
+  for(const r of frame()){ const R=RAD[r[I_RI]]; if(!R) continue;
+    const m=val(r); if(m<=0) continue; const[u,v]=netUV(r); if(u===0&&v===0) continue;
+    const d2=(R.lon-lon)**2+((R.lat-lat)*1.4)**2; if(d2>49) continue;   // ~7 deg reach
+    const w=m/(d2+0.5); uu+=u*w; vv+=v*w; ws+=w; }
+  return ws>0 ? [uu/ws,vv/ws] : null;
+}
+let _ovlSampKey=null;
+function speciesDeltaAt(lon,lat){                   // sign of the turnover overlay at a point
+  const b=ovlBlend(); if(!b||!OVL||!OVL.bbox) return null;
+  const imgLo=ovlImage(b.lo), imgHi=b.hi?ovlImage(b.hi):null;
+  if(!imgLo) return null;
+  const key=ovlBlendKey();
+  if(_ovlSampKey!==key){ ovlBlendTile(imgLo,imgHi||imgLo,imgHi?b.f:0); _ovlSampKey=key; }
+  const cv=_ovlTmp; if(!cv) return null;
+  const x0=OVL.bbox[0], x1=OVL.bbox[2], y0=OVL.merc_y[0], y1=OVL.merc_y[1], my=merc(lat);
+  const col=Math.floor((lon-x0)/(x1-x0)*cv.width), row=Math.floor((y1-my)/(y1-y0)*cv.height);
+  if(col<0||row<0||col>=cv.width||row>=cv.height) return null;
+  const d=cv.getContext("2d").getImageData(col,row,1,1).data;
+  if(d[3]<12) return {sign:0};                      // inside the +/-10 neutral band -> no turnover
+  return {sign: d[0]>d[2]?1:-1};                     // red ramp = increase, blue = decrease
+}
 /* desktop hover: describe whatever symbol or map area is under the cursor */
 const maptip=document.getElementById("maptip");
 const canHover = matchMedia("(hover:hover) and (pointer:fine)").matches;
@@ -2566,10 +2643,22 @@ if(canHover){
     if(best!=null){ html=radarReadout(best); onRadar=true; }
     else {
       const lon=BB.x0+((mx-view.x)/view.k-OX)/SC, lat=unmerc(BB.y1-((my-view.y)/view.k-OY)/SC);
+      const rows=[];
+      const md=migDirAt(lon,lat);
+      if(md){ const b=bearing(md[0],md[1]); rows.push(`migration &rarr; ${SEC[Math.round(b/45)%NS]} ${Math.round(b)}°`); }
       const g=ptField(), w=g?ptSample(g,lon,lat):null;
       if(w){ const sp=Math.hypot(w[0],w[1]), wb=(bearing(w[0],w[1])+180)%360;   // wind blows FROM
+        rows.push(`wind ${sp.toFixed(0)} m/s from ${SEC[Math.round(wb/45)%NS]}`); }
+      const cond=[];
+      if(pointInRings(lon,lat,frostRingsNow())) cond.push(`<span style="color:#8fc7ff">frost</span>`);
+      const wf=wxFrame(); if(wf && wf.front && pointInRings(lon,lat,wf.front)) cond.push(`<span style="color:#c4d2e6">rain</span>`);
+      if(cond.length) rows.push(cond.join(" · "));
+      const sd=speciesDeltaAt(lon,lat);
+      if(sd && sd.sign>0) rows.push(`<span style="color:#e8907a">more species arriving</span>`);
+      else if(sd && sd.sign<0) rows.push(`<span style="color:#7aa6e8">fewer species (departing)</span>`);
+      if(rows.length){
         html=`<span class="tip-sub">${Math.abs(lat).toFixed(1)}°${lat>=0?"N":"S"} ${Math.abs(lon).toFixed(1)}°${lon>=0?"E":"W"}</span>`
-            +`<div class="tip-sub">wind ${sp.toFixed(0)} m/s from ${SEC[Math.round(wb/45)%NS]}</div>`
+            +rows.map(r=>`<div class="tip-sub">${r}</div>`).join("")
             +(ptOn?`<div class="tip-hint">click to release a swarm</div>`:``);
       }
     }
