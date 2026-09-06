@@ -45,7 +45,13 @@
       if (manifest.weather && manifest.weather.days && manifest.weather.days.length) {
         let wxDays = manifest.weather.days;
         if (migDays.length) {
-          const lo = migDays[0], hi = migDays[migDays.length - 1];
+          // Extend ~2 weeks PAST the last radar night so weather-only dates (ECMWF can
+          // run a few days ahead of the radar) stay loadable and scrubbable; still clamp
+          // the lower bound so the deep ERA5 archive isn't pulled in.
+          const lo = migDays[0];
+          const hiD = new Date(migDays[migDays.length - 1] + "T00:00:00Z");
+          hiD.setUTCDate(hiD.getUTCDate() + 14);
+          const hi = hiD.toISOString().slice(0, 10);
           wxDays = wxDays.filter(d => d >= lo && d <= hi);
         }
         const wxTiles = await Promise.all(
