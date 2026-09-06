@@ -326,8 +326,8 @@ document.documentElement.classList.add("railoff","tloff");
         mode blends the same measurements into an animated field between radars
         &mdash; blank areas simply have no radar within range. Click any radar for
         its full profile: traffic by phase, flight altitudes, and the sector
-        breakdown. Clicking a <span style="color:#7FD8C4">teal US radar</span> opens
-        its own panel too &mdash; density, mean heading and the day's phases.</p>
+        breakdown &mdash; <span style="color:#7FD8C4">teal US radars</span> included, on the
+        same birds/km scale.</p>
 
       <p><b>Weather symbols.</b> Wind <b>barbs</b> use the meteorological
         convention &mdash; half feather 5&nbsp;kt, full 10&nbsp;kt, pennant
@@ -434,7 +434,7 @@ document.documentElement.classList.add("railoff","tloff");
       <label class="wxchk"><input type="checkbox" id="wxptcl" checked> Show &mdash; click &middot; right-click to seed</label>
       <label class="wxchk"><input type="checkbox" id="wxptceu"> European departure line <span style="color:#FFB05C">(amber)</span></label>
       <button type="button" id="ptclear" class="ptclear">Clear swarms</button>
-      <p class="note">The 0.25&deg; ECMWF weather, reduced to what matters for migration: <b>wind</b> barbs in the migration band &mdash; the strongest of the 925/850&nbsp;hPa levels (~800&ndash;1500&nbsp;m), shown from 5&nbsp;m/s &mdash; or at the surface (10&nbsp;m), toggle above; the leading edge of <b>precipitation</b> (a barrier birds won't cross), and where the <b>ground is freezing</b> (&le;0&nbsp;&deg;C &mdash; blue hatched regions, distinct from grey precipitation; a frost triggers departures). <b>Particle traces</b>: click the map to release a <span style="color:#A855F7">purple</span>, persistent swarm (no lifetime) that rides the migration-band wind in lockstep with the timeline: step, scrub or play the dates to advect them (one phase &asymp; 3.4&nbsp;h of transport; a still timeline is a still picture). Right-click seeds a line of tracers along the American Atlantic coast, Miami to northern Labrador &mdash; the Nearctic departure line (<span style="color:#7FD8C4">teal</span>). Enable <b>European departure line</b> above and the same right-click also seeds the Atlantic-facing European seaboard, North Cape to Morocco, in <span style="color:#FFB05C">amber</span> (zoom out to watch). <b>Night shadow</b> shades the sunlit day side warm and the night side dark for each date/phase &mdash; because the map spans an ocean, a "night" phase falls at very different clock times in America and Europe, and the terminator makes that offset visible. <b>US east-coast radars (NEXRAD)</b> adds the American seaboard radars in <span style="color:#7FD8C4">teal</span> (matching the Nearctic tracers); each disc grows and brightens with its <b>traffic volume</b> on its own uncalibrated density scale (the teal ramp in settings; each radar binned on its own local night), and they light up when the shadow reaches them. Enable <b>Radar-driven release</b> and the radars seed tracers along the American <b>shoreline</b> automatically as the timeline advances (no right-click needed): each radar releases about <b>one tracer per 250 birds</b> of its measured traffic, spread along its shoreline &mdash; daytime detections (mostly insects and local movement) release at a quarter of that &mdash; and each tracer draws its own <b>size</b> from the radar-night's spread of flight speeds (radar airspeed &mdash; ground speed minus wind &mdash; stands in for size, which sets endurance: a small passerine a few days, a wader up to two weeks), so one release carries a mix of guilds. The released tracers are drawn <span style="color:#7FD8C4">teal</span> to match the US layer. The same automatic release is available for the <b>European aloft radars</b>: enable <b>Radar-driven release</b> under <i>European radars</i> and the Atlantic-facing seaboard (North Cape to Morocco) seeds <span style="color:#FFB05C">amber</span> tracers each phase, one per 250 birds/km of each radar's traffic. Both radar releases run <b>independently of the <i>Show</i> traces toggle</b> &mdash; turn traces off and the radar swarms keep flowing (clearing only when every release is off).</p>
+      <p class="note">The 0.25&deg; ECMWF weather, reduced to what matters for migration: <b>wind</b> barbs in the migration band &mdash; the strongest of the 925/850&nbsp;hPa levels (~800&ndash;1500&nbsp;m), shown from 5&nbsp;m/s &mdash; or at the surface (10&nbsp;m), toggle above; the leading edge of <b>precipitation</b> (a barrier birds won't cross), and where the <b>ground is freezing</b> (&le;0&nbsp;&deg;C &mdash; blue hatched regions, distinct from grey precipitation; a frost triggers departures). <b>Particle traces</b>: click the map to release a <span style="color:#A855F7">purple</span>, persistent swarm (no lifetime) that rides the migration-band wind in lockstep with the timeline: step, scrub or play the dates to advect them (one phase &asymp; 3.4&nbsp;h of transport; a still timeline is a still picture). Right-click seeds a line of tracers along the American Atlantic coast, Miami to northern Labrador &mdash; the Nearctic departure line (<span style="color:#7FD8C4">teal</span>). Enable <b>European departure line</b> above and the same right-click also seeds the Atlantic-facing European seaboard, North Cape to Morocco, in <span style="color:#FFB05C">amber</span> (zoom out to watch). <b>Night shadow</b> shades the sunlit day side warm and the night side dark for each date/phase &mdash; because the map spans an ocean, a "night" phase falls at very different clock times in America and Europe, and the terminator makes that offset visible. <b>US east-coast radars (NEXRAD)</b> adds the American seaboard radars in <span style="color:#7FD8C4">teal</span> (matching the Nearctic tracers). They are processed the same way as Europe &mdash; the vol2bird radar equation into bird density and migration traffic (<b>birds/km</b>) &mdash; so a teal arrow reads on the same scale as a European one, and clicking one opens the same full profile (rose, flight altitudes, density &amp; heading history). Binned on each radar's own local night. Enable <b>Radar-driven release</b> and the radars seed tracers along the American <b>shoreline</b> automatically as the timeline advances (no right-click needed): each radar releases about <b>one tracer per 250 birds</b> of its measured traffic, spread along its shoreline &mdash; daytime detections (mostly insects and local movement) release at a quarter of that &mdash; and each tracer draws its own <b>size</b> from the radar-night's spread of flight speeds (radar airspeed &mdash; ground speed minus wind &mdash; stands in for size, which sets endurance: a small passerine a few days, a wader up to two weeks), so one release carries a mix of guilds. The released tracers are drawn <span style="color:#7FD8C4">teal</span> to match the US layer. The same automatic release is available for the <b>European aloft radars</b>: enable <b>Radar-driven release</b> under <i>European radars</i> and the Atlantic-facing seaboard (North Cape to Morocco) seeds <span style="color:#FFB05C">amber</span> tracers each phase, one per 250 birds/km of each radar's traffic. Both radar releases run <b>independently of the <i>Show</i> traces toggle</b> &mdash; turn traces off and the radar swarms keep flowing (clearing only when every release is off).</p>
     </div>
 
     <div class="grp" id="routesgrp">
@@ -684,7 +684,7 @@ const phaseOf  = i => PHASES[splitKey(TIMES[i])[1]];
 const hhmm = x => { const d=((x%1440)+1440)%1440;
   return String(Math.floor(d/60)).padStart(2,"0")+":"+String(d%60).padStart(2,"0"); };
 
-let mode="arrow", filt="bird", scaleMode="rate", idx=0, playing=false, sel=null, selUS=null;
+let mode="arrow", filt="bird", scaleMode="rate", idx=0, playing=false, sel=null;
 const phaseSel=new Set();   // selected solar phases; empty = every frame. Filters the timeline.
 let navList=[];             // TIMES indices the scrubber / arrows / play step through
 let showOvl = !!(OVL && (OVL.png || OVL.weeks));
@@ -1195,7 +1195,7 @@ function drawBase(){
 /* ---------- glyphs ---------- */
 const SCALE = v => Math.sqrt(Math.max(0,v))*1.55;
 const ROSE_RMAX=54, ROSE_LOGREF=Math.log1p(MAXSEC);
-function drawArrow(g,x,y,u,v,t,borrowed){
+function drawArrow(g,x,y,u,v,t,borrowed,colOverride){
   // Direction is the heading. Volume is carried THREE ways at once -- length,
   // shaft thickness and colour -- so a quiet radar and a busy one are told apart
   // at a glance and still separable in greyscale or with colour-vision
@@ -1208,7 +1208,7 @@ function drawArrow(g,x,y,u,v,t,borrowed){
   const hw   = wid*0.6 + head*0.28;                 // narrow, pointed head (still wider than shaft)
   const tx=x+dx*L, ty=y+dy*L;                       // tip
   const bx=tx-dx*head, by=ty-dy*head;               // base of the head
-  const col=rgb(hotCol(t));
+  const col=colOverride||rgb(hotCol(t));
   // a dark keyline keeps the smallest arrows legible over the turnover tint
   g.lineJoin="round"; g.lineCap="butt";
   g.strokeStyle="rgba(7,12,22,.55)"; g.lineWidth=wid+1.6;
@@ -1489,20 +1489,14 @@ function ptCoastDense(){                          // US shoreline sampled every 
 // size estimate (aspToLife). Colour encodes it: pale = short-lived small birds,
 // orange = long-haul waders.
 function ptSeedRadar(i=idx){
-  if(!US_BINS) return 0;
-  const recs=US_BINS[TIMES[i]]; if(!recs||!recs.length) return 0;
-  const g=ptWgridAt(i);
-  const ph=phaseOf(i);
-  const dayf=(ph==="day"||ph==="polar_day")?DAYTIME_FACTOR:1;  // daytime: fewer, mostly non-migrants
+  // US shoreline release, now from the same merged FRAMES as Europe (us:1 radars),
+  // ~1 teal tracer per 250 birds/km of each radar's traffic; daytime x DAYTIME_FACTOR.
+  const recs=FRAMES[i]; if(!recs||!recs.length) return 0;
+  const dayf=(()=>{const ph=phaseOf(i); return (ph==="day"||ph==="polar_day")?DAYTIME_FACTOR:1;})();
   const rad=[];
-  for(const r of recs){ const R=US_RAD[r[0]]; if(!R) continue;
-    // keep the ground-velocity mean+spread and the local wind; each dot draws
-    // its own size (guild) from them in ptDotLife.
-    const w=g?ptSample(g,R.lon,R.lat):null;
-    rad.push({R, dens:r[1], gu:r[2], gv:r[3], su:r[5]??null, sv:r[6]??null, w});
-  }
+  for(const r of recs){ const R=RAD[r[I_RI]]; if(!R||!R.us) continue;
+    const mt=r[I_MT8]||0; if(mt>0) rad.push({R, mt}); }
   if(!rad.length) return 0;
-  // attribute each shoreline stretch to its nearest radar
   for(const x of rad) x.pts=[];
   for(const [la,lo] of ptCoastDense()){
     let best=null, bd=1e9;
@@ -1510,19 +1504,16 @@ function ptSeedRadar(i=idx){
       if(d<bd){ bd=d; best=x; } }
     if(best && bd<=3.5) best.pts.push([la,lo]);
   }
-  // release ~1 tracer per 250 birds of the radar's traffic (band density),
-  // spread along its own shoreline stretch; daytime x DAYTIME_FACTOR.
   let made=0;
   for(const x of rad){
-    if(!x.pts.length || !(x.dens>0)) continue;
-    const N=Math.round(x.dens/250*dayf);
+    if(!x.pts.length) continue;
+    const N=Math.round(x.mt/250*dayf);
     for(let k=0;k<N && ptParts.length<PT_MAX;k++){
       const [la,lo]=x.pts[(Math.random()*x.pts.length)|0];
-      const life=ptDotLife(x);                     // per-dot guild -> endurance (life only)
       ptParts.push({lon:lo+(Math.random()-0.5)*0.3, lat:la+(Math.random()-0.5)*0.3,
-                    age:0, life, u:0, v:0,
+                    age:0, life:guildLifeFromPrior(), u:0, v:0,
                     du:(Math.random()-0.5)*1.5, dv:(Math.random()-0.5)*1.5,
-                    col:PT_COL_NA});          // teal (matches the US layer)
+                    col:PT_COL_NA});          // teal (matches the US arrows)
       made++;
     }
   }
@@ -1856,44 +1847,10 @@ function drawNightShadow(g){
   fillWhere(v=>v<s6,  "rgba(4,9,22,.15)");        // civil twilight -> night
   fillWhere(v=>v<s12, "rgba(4,9,22,.15)");        // astronomical core
 }
-// US east-coast NEXRAD: a separate layer on its OWN (uncalibrated) density scale,
-// drawn teal so it never reads as European MTR. Each radar's disc grows and
-// brightens with its traffic volume (sqrt density); binned on its own local
-// sunrise/sunset (nexrad_app.py), so it lands on the same date|phase key.
-let showShadow=true, shadowAnim=true, showUS=false, US_BINS=null, US_RAD=null, US_MAX=1;
-if(US && US.bins && US.radars && US.radars.length){
-  US_BINS=US.bins; US_RAD=US.radars; showUS=true;              // on when data is present
-  for(const k in US_BINS) for(const r of US_BINS[k]) if(r[1]>US_MAX) US_MAX=r[1];
-}
-function drawUS(g){
-  if(!showUS||!US_BINS) return;
-  const recs=US_BINS[TIMES[idx]]; if(!recs) return;
-  for(const rec of recs){
-    const R=US_RAD[rec[0]]; if(!R) continue;
-    const x=px(R.lon), y=py(R.lat);
-    if(x<-40||x>W+40||y<-40||y>H+40) continue;
-    const t=Math.min(1, Math.sqrt(rec[1]/US_MAX));            // own sqrt scale = traffic volume
-    const rr=1.6+t*4.4, aa=0.3+0.65*t;                        // teal disc: bigger + brighter = more traffic
-    g.beginPath(); g.arc(x,y,rr,0,7); g.fillStyle=`rgba(127,216,196,${aa})`; g.fill();
-    const u=rec[2], v=rec[3];
-    if(u!=null && v!=null){
-      const m=Math.hypot(u,v);
-      if(m>0.3){
-        const dx=u/m, dy=-v/m, nx=-dy, ny=dx;
-        const L=8+t*32, head=4+t*10, hw=1.2+head*0.32, wid=1.4+t*4;
-        const tx=x+dx*L, ty=y+dy*L, bx=tx-dx*head, by=ty-dy*head;
-        g.lineJoin="round"; g.lineCap="butt";
-        g.strokeStyle="rgba(7,12,22,.6)"; g.lineWidth=wid+1.4;
-        g.beginPath(); g.moveTo(x,y); g.lineTo(bx,by); g.stroke();
-        g.strokeStyle="rgba(127,216,196,.95)"; g.lineWidth=wid;
-        g.beginPath(); g.moveTo(x,y); g.lineTo(bx,by); g.stroke();
-        g.beginPath(); g.moveTo(tx,ty);
-        g.lineTo(bx+nx*hw,by+ny*hw); g.lineTo(bx-nx*hw,by-ny*hw); g.closePath();
-        g.fillStyle="rgba(127,216,196,.95)"; g.fill();
-      }
-    }
-  }
-}
+// US east-coast NEXRAD radars now live in the SAME migration data as Europe
+// (aggregate.py -> frames.json, tagged us:1), rendered through the same arrow /
+// detail path but teal. showUS toggles them; on when any US radar is present.
+let showShadow=true, shadowAnim=true, showUS=RAD.some(r=>r&&r.us);
 function draw(){
   // The turnover tile tracks the frame's date and cross-fades between weeks.
   // Repaint the base only when that blend actually changes (i.e. the date), then
@@ -1909,30 +1866,32 @@ function draw(){
   if(mode!=="flow"){ ctxF.clearRect(0,0,W,H); }
   for(const r of order){
     const R=RAD[r[I_RI]], x=px(R.lon), y=py(R.lat);
+    if(R.us && !showUS){ seen.add(r[I_RI]); continue; }   // US layer hidden
     seen.add(r[I_RI]);
+    const tc = R.us ? "rgba(127,216,196,.95)" : null;     // US radars drawn teal
     if(isDensityOnly(r)){
       // borrow a heading from neighbours; strength is this radar's own density
       const est = borrowVector(r);
-      if(mode==="arrow" && est && est.t>0) drawArrow(ctxP,x,y,est.u,est.v,est.t,true);
+      if(mode==="arrow" && est && est.t>0) drawArrow(ctxP,x,y,est.u,est.v,est.t,true,tc);
       else densityMark(ctxP,x,y, est?est.t:0.3);
       continue;
     }
     const m=val(r);
     if(m<=0){ noData(ctxP,x,y); continue; }
-    if(mode==="arrow"){ const[u,v]=netUV(r); drawArrow(ctxP,x,y,u,v,vnorm(m)); }
+    if(mode==="arrow"){ const[u,v]=netUV(r); drawArrow(ctxP,x,y,u,v,vnorm(m),false,tc); }
     else { ctxP.beginPath(); ctxP.arc(x,y,1.6,0,7);
            ctxP.fillStyle="rgba(232,237,245,.35)"; ctxP.fill(); }
   }
   RAD.forEach((R,i)=>{
     if(seen.has(i)) return;
+    if(R.us && !showUS) return;                           // US layer hidden
     const x=px(R.lon), y=py(R.lat);
     if(isStale(i)) staleX(ctxP,x,y); else noData(ctxP,x,y);
   });
-  drawUS(ctxP);
   if(sel!=null){
     const R=RAD[sel], x=px(R.lon), y=py(R.lat);
     ctxP.beginPath(); ctxP.arc(x,y,10,0,7);
-    ctxP.strokeStyle="#E8A33D";
+    ctxP.strokeStyle=R.us?"#7FD8C4":"#E8A33D";           // teal ring for a US radar
     ctxP.lineWidth=1.3; ctxP.stroke();
   }
   stats();
@@ -2264,20 +2223,20 @@ function blankSectorRows(){
   }
 }
 function openDetail(ri){
-  sel=ri; selUS=null;
+  sel=ri;
   const f=frame(), rec=f.find(r=>r[I_RI]===ri);
   const R=RAD[ri], D=document.getElementById("detail");
   D.classList.add("on");
-  document.getElementById("d-id").style.color="";                 // reset if a US radar had recoloured it
-  document.getElementById("d-crow").style.display="";
+  document.getElementById("d-id").style.color=R.us?"#7FD8C4":"";   // teal for a US radar
+  document.getElementById("d-crow").style.display=R.us?"none":"";  // CROW viewer is European only
   document.getElementById("d-head").innerHTML=
     "<th>Sector</th><th>MT</th><th>U</th><th>V</th><th>Share</th>";
   document.getElementById("d-id").textContent=R.id.toUpperCase();
-  document.getElementById("d-pos").textContent=
-    `${R.cc.toUpperCase()} \u00B7 ${R.lat.toFixed(3)}\u00B0N ${R.lon.toFixed(3)}\u00B0E`;
-  // the corresponding radar + date on aloftdata's own CROW viewer
+  document.getElementById("d-pos").textContent = R.us
+    ? `US NEXRAD \u00B7 ${R.lat.toFixed(3)}\u00B0N ${Math.abs(R.lon).toFixed(3)}\u00B0W`
+    : `${R.cc.toUpperCase()} \u00B7 ${R.lat.toFixed(3)}\u00B0N ${R.lon.toFixed(3)}\u00B0E`;
   const crowDay=splitKey(TIMES[idx])[0];
-  document.getElementById("d-crow").href=
+  if(!R.us) document.getElementById("d-crow").href=
     `https://crow.aloftdata.eu/#/?radar=${encodeURIComponent(R.id)}&date=${crowDay}`;
   const tb=document.getElementById("d-rows"); tb.innerHTML="";
   const rc=document.getElementById("rose"), g=rc.getContext("2d");
@@ -2350,73 +2309,9 @@ function openDetail(ri){
   drawHProfile(rec); drawTimeHeight(ri);
   fit(); drawBase(); draw();
 }
-function redrawDetail(){ if(sel!=null) openDetail(sel); else if(selUS!=null) openUSDetail(selUS); }
-
-// US NEXRAD detail (teal layer). One mean heading per phase, no sectors/altitude,
-// so: a compass with the mean-heading arrow + the density, and the day's phases.
-function openUSDetail(ui){
-  selUS=ui; sel=null;
-  const R=US_RAD[ui];
-  document.getElementById("detail").classList.add("on");
-  const idEl=document.getElementById("d-id");
-  idEl.textContent=R.id.toUpperCase(); idEl.style.color="#7FD8C4";
-  document.getElementById("d-pos").textContent=
-    `US NEXRAD · ${R.lat.toFixed(3)}°N ${Math.abs(R.lon).toFixed(3)}°W`;
-  document.getElementById("d-crow").style.display="none";
-  ["hprof","hprof-lbl","thheat","thheat-lbl"].forEach(id=>
-    document.getElementById(id).style.display="none");
-  document.getElementById("d-head").innerHTML=
-    "<th>Phase</th><th>Density</th><th>Dir</th><th>Speed</th>";
-  const recs=US_BINS[TIMES[idx]]||[], rec=recs.find(r=>r[0]===ui);
-  const rc=document.getElementById("rose"), g=rc.getContext("2d");
-  const dpr=Math.min(2,devicePixelRatio||1), ff=getComputedStyle(document.body).fontFamily;
-  rc.width=rc.clientWidth*dpr; rc.height=210*dpr; g.setTransform(dpr,0,0,dpr,0,0);
-  g.clearRect(0,0,rc.clientWidth,210);
-  const cx=rc.clientWidth/2, cy=105, rmax=84;
-  g.strokeStyle="rgba(38,51,74,.9)"; g.lineWidth=.8;
-  g.beginPath(); g.arc(cx,cy,rmax,0,7); g.stroke();
-  g.font="600 9px "+ff; g.fillStyle="#7C8AA3"; g.textAlign="center"; g.textBaseline="middle";
-  for(let i=0;i<NS;i++){ const b=i*45*Math.PI/180;
-    g.fillText(SEC[i],cx+Math.sin(b)*(rmax+11),cy-Math.cos(b)*(rmax+11)); }
-  let dens=null,dir=null,spd=null;
-  if(rec){ dens=rec[1]; const u=rec[2], v=rec[3];
-    if(u!=null && v!=null){ const m=Math.hypot(u,v); spd=m;
-      if(m>0.3){ const brg=bearing(u,v); dir=brg;
-        const dx=Math.sin(brg*Math.PI/180), dy=-Math.cos(brg*Math.PI/180), L=rmax*0.9;
-        const tx=cx+dx*L, ty=cy+dy*L, nx=-dy, ny=dx, hw=6, hl=12;
-        g.strokeStyle="rgba(127,216,196,.95)"; g.lineWidth=3; g.lineCap="round";
-        g.beginPath(); g.moveTo(cx,cy); g.lineTo(tx,ty); g.stroke();
-        g.beginPath(); g.moveTo(tx,ty);
-        g.lineTo(tx-dx*hl+nx*hw, ty-dy*hl+ny*hw);
-        g.lineTo(tx-dx*hl-nx*hw, ty-dy*hl-ny*hw);
-        g.closePath(); g.fillStyle="rgba(127,216,196,.95)"; g.fill(); }}}
-  g.fillStyle="#7FD8C4"; g.font="600 14px "+ff; g.textAlign="center";
-  g.fillText(dens!=null?String(Math.round(dens)):"—", cx, cy-3);
-  g.fillStyle="#7C8AA3"; g.font="9px "+ff; g.fillText("birds/km³", cx, cy+11);
-  const day=splitKey(TIMES[idx])[0], tb=document.getElementById("d-rows"); tb.innerHTML="";
-  for(let i=0;i<TIMES.length;i++){
-    if(splitKey(TIMES[i])[0]!==day) continue;
-    const rr=(US_BINS[TIMES[i]]||[]).find(x=>x[0]===ui);
-    let dv="—",dr="—",sp="—";
-    if(rr){ dv=Math.round(rr[1]); if(rr[2]!=null){ const m=Math.hypot(rr[2],rr[3]);
-      if(m>0.3){ dr=SEC[Math.round(bearing(rr[2],rr[3])/45)%NS]; sp=m.toFixed(1); }}}
-    const tr=document.createElement("tr");
-    if(i===idx) tr.className="top"; else if(!rr) tr.className="z";
-    tr.innerHTML=`<td>${PH_LABEL[phaseOf(i)]||phaseOf(i)}</td><td>${dv}</td><td>${dr}</td><td>${sp}</td>`;
-    tb.appendChild(tr);
-  }
-  document.getElementById("d-note").innerHTML=
-    `US east-coast <b>NEXRAD</b> (teal layer, own scale). Bird <b>density</b> band-summed `+
-    `200–1600 m, vol2bird-calibrated (birds/km³). `+
-    (dir!=null
-      ? `Mean heading <b>${SEC[Math.round(dir/45)%NS]} ${Math.round(dir)}°</b> at `
-        +`${spd.toFixed(1)} m/s ground velocity. `
-      : `No flight direction measured this phase. `)+
-    (rec ? `${rec[4]} radar scans.` : `No data in this frame.`);
-  fit(); drawBase(); draw();
-}
+function redrawDetail(){ if(sel!=null) openDetail(sel); }   // US radars now use openDetail too
 document.getElementById("close").onclick=()=>{
-  sel=null; selUS=null; document.getElementById("detail").classList.remove("on"); resize(); };
+  sel=null; document.getElementById("detail").classList.remove("on"); resize(); };
 
 /* ---------- legend ---------- */
 function legend(){
@@ -2518,12 +2413,13 @@ document.getElementById("ovlcut").addEventListener("input",e=>ovlSetCutoff(+e.ta
   document.getElementById("wxptceu").addEventListener("change",e=>{ ptEU=e.target.checked; });
   document.getElementById("wxshadow").addEventListener("change",e=>{ showShadow=e.target.checked; draw(); });
   document.getElementById("wxshadowanim").addEventListener("change",e=>{ shadowAnim=e.target.checked; draw(); });
+  const hasUS=RAD.some(r=>r&&r.us);
   const usEl=document.getElementById("wxus");
-  usEl.checked=showUS; usEl.disabled=!US_BINS;                 // reflect data presence
-  document.getElementById("uslegend").hidden=!US_BINS;         // teal traffic-volume scale
+  usEl.checked=showUS; usEl.disabled=!hasUS;                   // reflect data presence
+  document.getElementById("uslegend").hidden=true;            // US now uses the same arrow scale as Europe
   usEl.addEventListener("change",e=>{ showUS=e.target.checked; draw(); });
   const prEl=document.getElementById("wxptradar");
-  prEl.disabled=!US_BINS;                                      // needs NEXRAD data
+  prEl.disabled=!hasUS;                                        // needs NEXRAD data
   prEl.addEventListener("change",e=>{ ptRadar=e.target.checked; if(!ptOn && !ptRadar && !ptRadarEU) ptClear(); });
   document.getElementById("wxptradareu").addEventListener("change",e=>{
     ptRadarEU=e.target.checked; if(!ptOn && !ptRadar && !ptRadarEU) ptClear(); });   // European seaboard release
@@ -2641,45 +2537,33 @@ cvP.addEventListener("click",e=>{
   if(moved){ moved=false; return; }          // that was a pan, not a pick
   const [mx,my]=stageXY(e);
   let best=null,bd=26;
-  RAD.forEach((R,i)=>{ const d=Math.hypot(px(R.lon)-mx,py(R.lat)-my);
-    if(d<bd){bd=d;best=i;} });
-  let ubest=null,ubd=26;                      // US NEXRAD radars (teal layer)
-  if(showUS && US_RAD) US_RAD.forEach((R,i)=>{ const d=Math.hypot(px(R.lon)-mx,py(R.lat)-my);
-    if(d<ubd){ubd=d;ubest=i;} });
-  if(ubest!=null && (best==null || ubd<bd)) openUSDetail(ubest);
-  else if(best!=null) openDetail(best);
+  RAD.forEach((R,i)=>{ if(R.us && !showUS) return;   // skip hidden US radars
+    const d=Math.hypot(px(R.lon)-mx,py(R.lat)-my); if(d<bd){bd=d;best=i;} });
+  if(best!=null) openDetail(best);
   else if(ptOn) ptDrop(mx,my);               // empty map + traces on -> drop a puff
 });
 /* desktop hover: describe whatever symbol or map area is under the cursor */
 const maptip=document.getElementById("maptip");
 const canHover = matchMedia("(hover:hover) and (pointer:fine)").matches;
 function hideTip(){ maptip.classList.remove("on"); }
-function euReadout(i){
+function radarReadout(i){
   const R=RAD[i], rec=frame().find(r=>r[I_RI]===i);
-  let s=`<span class="tip-id">${R.id.toUpperCase()}</span> <span class="tip-sub">${R.cc.toUpperCase()}</span>`;
+  const idc=R.us?` style="color:#7FD8C4"`:``, sub=R.us?"US radar":R.cc.toUpperCase();
+  let s=`<span class="tip-id"${idc}>${R.id.toUpperCase()}</span> <span class="tip-sub">${sub}</span>`;
   if(rec && val(rec)>0){ const[u,v]=netUV(rec), b=bearing(u,v);
     s+=`<div class="tip-sub">${fmt(val(rec))} birds/km · ${SEC[Math.round(b/45)%NS]} ${Math.round(b)}° · ${rec[I_ALT]} m</div>`;
   } else if(rec && isDensityOnly(rec)){ s+=`<div class="tip-sub">density only — heading borrowed</div>`; }
   else s+=`<div class="tip-sub">no data this phase</div>`;
   return s+`<div class="tip-hint">click for the full profile</div>`;
 }
-function usReadout(i){
-  const R=US_RAD[i], rec=(US_BINS[TIMES[idx]]||[]).find(r=>r[0]===i);
-  let s=`<span class="tip-id" style="color:#7FD8C4">${R.id.toUpperCase()}</span> <span class="tip-sub">US radar</span>`;
-  if(rec){ const b=(rec[2]||rec[3])?bearing(rec[2],rec[3]):null;
-    s+=`<div class="tip-sub">${fmt(rec[1])} traffic`+(b!=null?` · ${SEC[Math.round(b/45)%NS]} ${Math.round(b)}°`:``)+`</div>`;
-  } else s+=`<div class="tip-sub">no data this phase</div>`;
-  return s+`<div class="tip-hint">click for the detail panel</div>`;
-}
 if(canHover){
   cvP.addEventListener("pointermove",e=>{
     if(drag){ hideTip(); return; }
     const[mx,my]=stageXY(e);
-    let best=null,bd=14; RAD.forEach((R,i)=>{ const d=Math.hypot(px(R.lon)-mx,py(R.lat)-my); if(d<bd){bd=d;best=i;} });
-    let ub=null,ubd=14; if(showUS&&US_RAD) US_RAD.forEach((R,i)=>{ const d=Math.hypot(px(R.lon)-mx,py(R.lat)-my); if(d<ubd){ubd=d;ub=i;} });
+    let best=null,bd=14; RAD.forEach((R,i)=>{ if(R.us && !showUS) return;
+      const d=Math.hypot(px(R.lon)-mx,py(R.lat)-my); if(d<bd){bd=d;best=i;} });
     let html=null, onRadar=false;
-    if(ub!=null && (best==null||ubd<bd)){ html=usReadout(ub); onRadar=true; }
-    else if(best!=null){ html=euReadout(best); onRadar=true; }
+    if(best!=null){ html=radarReadout(best); onRadar=true; }
     else {
       const lon=BB.x0+((mx-view.x)/view.k-OX)/SC, lat=unmerc(BB.y1-((my-view.y)/view.k-OY)/SC);
       const g=ptField(), w=g?ptSample(g,lon,lat):null;
