@@ -1,6 +1,6 @@
 # How bird signals are extracted from weather radar
 
-Migration Aloft shows **birds**, but weather radars don't measure birds — they
+Birds Aloft shows **birds**, but weather radars don't measure birds — they
 measure everything that reflects microwaves: rain, snow, insects, bats, birds,
 and ground clutter, all mixed together. The bird signal has to be *extracted*.
 This page explains how, for both the European and the US data feeding the map.

@@ -1,6 +1,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Migration Aloft — BirdsWhere</title>
+<title>Birds Aloft — BirdsWhere</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
@@ -11,7 +11,7 @@
   --ground:#08201E; --ground-2:#0d2b28; --land:#123430; --land-line:#1e4a44;
   --ink:#eaf4f1; --ink-2:#a7c9c0; --muted:#7ca39a; --line:#1c3d38;
   --accent:#7fd8c4; --accent-dim:#2e8b74; --good:#7fd8c4; --warn:#E86B4D;
-  --panel:rgba(10,16,27,.88); --rail:280px; --detail:330px;
+  --panel:rgba(10,16,27,.88); --rail-w:280px; --rail:var(--rail-w); --detail:330px;
   --f-sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   --f-mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,monospace;
 }
@@ -22,7 +22,7 @@ body{background:var(--ground);color:var(--ink);font-family:var(--f-sans);
 button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
-/* intro splash: shown once per app version (build.py stamps 52b538d9), and on
+/* intro splash: shown once per app version (build.py stamps 11f6d8b8), and on
    demand from the ? button top-right / the ? key. Main points + a symbol key. */
 #splash{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;
   padding:24px;background:rgba(4,10,12,.74);backdrop-filter:blur(8px);animation:splashIn .3s ease}
@@ -42,6 +42,21 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   font-weight:700;padding:11px 20px;border-radius:10px;font-size:15px}
 .splash-go:hover{filter:brightness(1.08)}
 .splash-foot{margin:0 0 14px;color:var(--muted);font-size:11.5px;line-height:1.5}
+.splash-companion{margin:0 0 14px;padding-top:12px;border-top:1px solid var(--line);
+  color:var(--ink-2);font-size:12.5px;line-height:1.5}
+.splash-companion a,.companion a{color:var(--accent);text-decoration:underline;text-underline-offset:2px}
+.splash-companion a:hover,.companion a:hover{color:var(--ink)}
+.companion{margin:0;padding-top:12px;border-top:1px solid var(--line)}
+.tech{margin:0 0 14px;padding-top:12px;border-top:1px solid var(--line)}
+.tech summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:6px;
+  font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.tech summary::-webkit-details-marker{display:none}
+.tech summary::after{content:"+";margin-left:auto;font-size:13px;line-height:1}
+.tech[open] summary::after{content:"\2212"}
+.tech summary:hover{color:var(--ink-2)}
+.tech h4{margin:14px 0 4px;font-size:12.5px;font-weight:600;color:var(--ink)}
+.tech p{margin:0 0 8px;font-size:12px;line-height:1.5;color:var(--ink-2)}
+.tech b{color:var(--ink);font-weight:600}
 .splash-cta{position:sticky;bottom:-28px;margin:0 -30px -28px;padding:14px 30px 22px;
   background:linear-gradient(180deg,rgba(10,16,27,0),rgba(10,16,27,.97) 40%)}
 .splash-card h3{margin:0 0 8px;font-size:11px;font-weight:600;letter-spacing:.08em;
@@ -91,7 +106,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   text-align:center;font-variant-numeric:tabular-nums;padding-top:1px}
 
 /* ---------- left rail ---------- */
-#rail{grid-column:1;grid-row:1;z-index:3;background:var(--panel);
+#rail{grid-column:1;grid-row:1;z-index:3;width:var(--rail-w);background:var(--panel);
   backdrop-filter:blur(14px);border-right:1px solid var(--line);
   display:flex;flex-direction:column;gap:22px;padding:20px 18px;overflow-y:auto;
   transition:transform .28s ease;will-change:transform}
@@ -152,7 +167,7 @@ html.railoff{--rail:0px}
 
 /* ---------- bottom transport ---------- */
 #transport{grid-column:1/4;grid-row:2;z-index:4;background:var(--panel);position:relative;
-  backdrop-filter:blur(14px);border-top:1px solid var(--line);
+  backdrop-filter:blur(14px);border-top:1px solid var(--line);transition:transform .28s ease;
   padding:12px 18px 14px;display:flex;flex-direction:column;gap:9px}
 /* collapse tab on the transport's top edge; collapsed -> a single summary line */
 #tltog{position:absolute;top:-15px;right:16px;z-index:5;
@@ -273,8 +288,8 @@ document.documentElement.classList.add("railoff","tloff");
 </script>
 
 <div id="splash" hidden>
-  <div class="splash-card" role="dialog" aria-modal="true" aria-label="About Migration Aloft">
-    <h2>Migration Aloft</h2>
+  <div class="splash-card" role="dialog" aria-modal="true" aria-label="About Birds Aloft">
+    <h2>Birds Aloft</h2>
     <p class="tag">Nocturnal bird migration across the North Atlantic, measured live by weather radar.</p>
     <ul class="splash-list">
       <li><b>Radars, live.</b> Weather radars across Europe and the US east coast measure the birds
@@ -306,14 +321,109 @@ document.documentElement.classList.add("railoff","tloff");
     <p class="splash-foot">Data: aloftdata.eu &middot; NOAA NEXRAD &middot; ECMWF &nbsp;&middot;&nbsp;
       Full guide: <i>How to read this map</i> in the left panel &nbsp;&middot;&nbsp;
       Reopen this screen with the <b>?</b> button (top-right) or the <kbd>?</kbd> key
-      &nbsp;&middot;&nbsp; build 52b538d9</p>
+      &nbsp;&middot;&nbsp; build 11f6d8b8</p>
+    <p class="splash-companion">Companion site: <a href="https://thebirding.site/" target="_blank" rel="noopener">BirdsWhere &mdash; thebirding.site</a>
+      &mdash; a free, in-browser map of bird observations and distribution: where each species is
+      recorded, when it occurs through the year, and live sightings, with field logging and offline maps.</p>
+    <details class="tech">
+      <summary>Technical notes</summary>
+
+      <h4>1. US radar (NEXRAD) processing, and how it is put on the European scale</h4>
+      <p><b>Two sources, one recipe.</b> Europe arrives already processed: aloftdata.eu publishes
+        vertical profiles (VPTS) that vol2bird has computed from the ODIM volumes of 139 BALTRAD
+        radars. The US east coast does not, so this site fetches the raw WSR-88D <b>Level II</b>
+        volumes (one every ~6 min) for 15 Atlantic and Gulf radars, Maine to Key West and Tampa,
+        keeps a rolling 30-day raw archive, and computes an equivalent profile for each complete
+        radar-day with the same recipe and the same constants as vol2bird.</p>
+      <p><b>Gate selection.</b> Every elevation sweep is used, at ranges of 5&ndash;35&nbsp;km;
+        beam height comes from the standard 4/3-earth propagation. A gate is kept as biology
+        only if reflectivity is between &minus;8 and 20&nbsp;dBZ (the ceiling removes rain and the
+        ~4&nbsp;km melting-layer bright band), the correlation coefficient &rho;<sub>hv</sub> is
+        between 0.50 and 0.90 (lower is noise, higher is precipitation or melting), and the
+        differential reflectivity Z<sub>DR</sub> is between &minus;6 and +3&nbsp;dB (high positive
+        values are insects). Velocities need no dealiasing: the ~28&nbsp;m/s Nyquist limit exceeds
+        bird plus wind speeds.</p>
+      <p><b>Reflectivity to birds.</b> Each retained gate is converted with the radar equation used
+        by vol2bird and bioRad, &eta; = (1000&middot;&pi;<sup>5</sup>/&lambda;<sup>4</sup>)&middot;|K|<sup>2</sup>&middot;10<sup>dBZ/10</sup>
+        cm&sup2;/km&sup3; with |K|<sup>2</sup> = 0.93. The wavelength is not stored in Level II,
+        so it is derived per radar from each volume&rsquo;s Nyquist velocity and unambiguous range
+        (&asymp;10.4&ndash;10.6&nbsp;cm; an 8% spread in &eta; if a nominal value were used).
+        Gates are binned into 25 layers of 200&nbsp;m up to 5&nbsp;km; a layer reports when it has
+        at least 20 biological gates, with density = mean &eta; / 11&nbsp;cm&sup2;, the standard
+        bird radar cross-section that Europe uses as well.</p>
+      <p><b>Speed and heading.</b> Per layer, a least-squares VAD fit of radial velocity against
+        the sine and cosine of azimuth gives the east and north components of ground velocity,
+        hence speed and direction. Layers whose fit residual is below 1&nbsp;m/s (the S-band
+        threshold) behave like coherent wind rather than a flock and are flagged as non-bird.</p>
+      <p><b>Same aggregation, same units.</b> The US profile is written in the 26-column aloft
+        VPTS layout, so the identical aggregation code handles both networks: per layer, migration
+        traffic = density &times; speed &times; 3.6 &times; 0.2&nbsp;km (birds/km/h), summed over
+        layers and scaled by the phase length to <b>MT</b> (birds crossing 1&nbsp;km in the phase);
+        &ldquo;Birds only&rdquo; keeps layers moving at &ge;&nbsp;8&nbsp;m/s over the ground, because
+        insects drift with the wind and birds self-propel; each layer goes into one of eight
+        heading sectors by its own direction; mean altitude is density-weighted. Phases with fewer
+        than two profiles are dropped.</p>
+      <p><b>Calibration.</b> There is no empirical scale factor between the continents.
+        Comparability rests on using the same &eta; formula, dielectric factor, cross-section,
+        layer grid, speed screen and aggregation. Before the gate windows above were tightened
+        (from any &rho;<sub>hv</sub> &lt; 0.95 and reflectivity up to ~32&nbsp;dBZ) US densities
+        ran 5&ndash;13&times; above Europe; with them, the two networks sit on the same scale.
+        Remaining differences to vol2bird: a per-layer VAD instead of its 3-D VVP, no range
+        correction for beam broadening and overshoot, no clutter map or precipitation-texture
+        filter, one mean heading per layer, and no validation against BirdCast yet.</p>
+      <p><b>Solar phases.</b> Both networks are binned with the same NOAA solar equations on each
+        radar&rsquo;s own coordinates, so a phase is local everywhere: Day (an hour after sunrise
+        to an hour before sunset), Dusk (sunset &plusmn;1&nbsp;h), Night I&ndash;III (the dark core
+        in thirds, up to 3&nbsp;h each), Dawn (sunrise &plusmn;1&nbsp;h), plus polar day and night.
+        A phase&rsquo;s MT uses its defined length, so a radar outage lowers coverage, not traffic.</p>
+
+      <h4>2. The wind-advection (particle trace) model</h4>
+      <p><b>What it is.</b> A null model: a tracer is a passive parcel, d<b>x</b>/dt = <b>W</b>(<b>x</b>,&nbsp;t),
+        showing where the wind alone would carry a bird. It has no airspeed or heading of its
+        own, so a trace is drift, not a track; compare it with the radar arrows to separate wind
+        from the birds&rsquo; own effort.</p>
+      <p><b>The wind.</b> ECMWF IFS open-data forecasts on a 0.25&deg; grid at 3-hour steps, at
+        925 and 850&nbsp;hPa (about 800 and 1500&nbsp;m); per cell the stronger of the two is taken
+        as the migration-band wind (the same rule as the barbs). It is subsampled to 1.5&deg; over
+        84&deg;W&ndash;40&deg;E, 15&ndash;82&deg;N, and for each date and solar phase the 3-hourly
+        steps falling in that phase are averaged into one frozen field. Days backfilled from
+        ERA5 carry 925&nbsp;hPa only.</p>
+      <p><b>Integration.</b> Tracers move only when the timeline steps forward. Each step covers
+        the frame&rsquo;s real phase length (the median of the reporting radars&rsquo; phase hours,
+        about 3.4&nbsp;h for a night third; 24&nbsp;h in day mode) in eight sub-steps of ~25&nbsp;min
+        using Heun&rsquo;s method (second-order Runge&ndash;Kutta) with bilinear sampling of the
+        field, on equirectangular kinematics with a cos(latitude) longitude scaling floored at
+        0.2. There is no interpolation between successive phase fields. A tracer in a cell without
+        wind data coasts on its last velocity with a 12-hour e-folding decay; one that leaves the
+        domain is removed. Scrubbing backwards clears every tracer; there is no reverse advection.</p>
+      <p><b>Dispersion.</b> Each tracer carries a fixed personal drift of up to &plusmn;0.75&nbsp;m/s
+        in each axis plus &plusmn;0.5&nbsp;m/s of jitter per sub-step, a crude stand-in for
+        sub-grid turbulence and individual variation. At most 4000 tracers exist at once.</p>
+      <p><b>Seeding.</b> A click drops 36 immortal tracers within &plusmn;0.45&deg; of longitude and
+        &plusmn;0.3&deg; of latitude. A right-click seeds the American Atlantic coast (Miami to Cape
+        Chidley, every 0.2&deg;), and optionally the European seaboard (North Cape to Morocco, every
+        0.25&deg;), each tracer living 96&ndash;192&nbsp;h. With radar-driven release on, each phase
+        every radar releases round(MT&nbsp;/&nbsp;250) tracers, MT being its bird-only traffic in
+        birds/km for the phase, spread over the shoreline points nearest to it (within 3.5&deg; in the
+        US, 4&deg; in Europe); day phases release a quarter of that, since daytime echoes are mostly
+        insects and local movement.</p>
+      <p><b>Endurance.</b> Each released tracer draws a lifetime from a fixed guild prior: 70% live
+        72&ndash;96&nbsp;h (small passerines), 22% 96&ndash;144&nbsp;h, 8% 144&ndash;336&nbsp;h (large
+        waders and seabirds). A tracer that outlives its endurance is removed wherever it is.</p>
+      <p><b>Assumptions and limits.</b> Passive transport only; a single wind level (no altitude
+        selection, no shear); one mean wind per phase; no landfall, stopover, refuelling or
+        landing; no reverse time; straight-line kinematics on a flat projection. Real migrants add
+        10&ndash;20&nbsp;m/s of self-propelled flight and choose their altitude, so the traces are a
+        baseline against which the measured headings can be read, not a forecast of where birds
+        go.</p>
+    </details>
     <div class="splash-cta"><button type="button" class="splash-go" id="splashgo">Explore the map &rarr;</button></div>
   </div>
 </div>
 <script>
 (function(){
   var sp=document.getElementById("splash"); if(!sp) return;
-  var KEY="aloft_splash_seen", VER="52b538d9", openedBy=null;
+  var KEY="aloft_splash_seen", VER="11f6d8b8", openedBy=null;
   var seen=false; try{ seen=localStorage.getItem(KEY)===VER; }catch(e){}
   if(!seen) sp.hidden=false;                    // first load of this app version -> show
   function open(by){ openedBy=by; sp.hidden=false; document.getElementById("splashgo").focus(); }
@@ -351,7 +461,7 @@ document.documentElement.classList.add("railoff","tloff");
   <aside id="rail">
     <div class="brand">
       <a class="bw-back" href="https://pcmoan70.github.io/BirdsWhere/">&larr; BirdsWhere</a>
-      <h1>Migration Aloft</h1>
+      <h1>Birds Aloft</h1>
       <p>European bird migration from weather radar &mdash;
          binned by sunrise and sunset</p>
     </div>
@@ -419,7 +529,9 @@ document.documentElement.classList.add("railoff","tloff");
         <kbd>&larr;</kbd>/<kbd>&rarr;</kbd> step phases, <kbd>space</kbd> plays,
         <kbd>?</kbd> (or the button top-right) reopens the intro with the symbol key.
         The phase strip under the date filters which phases the scrubber visits.
-        Side and bottom panels collapse with their tabs; the map re-fits.</p>
+        Side and bottom panels collapse with their tabs; the map re-fits. With a mouse,
+        touching the left or bottom edge of the window slides a collapsed panel out for a
+        look: move off it before it is halfway and it snaps back, past halfway it stays open.</p>
     </details>
 
     <div class="grp">
@@ -529,8 +641,8 @@ document.documentElement.classList.add("railoff","tloff");
     <div class="grp" id="qrgrp">
       <div class="lbl">Open on your phone</div>
       <a class="qrbox" href="https://pcmoan70.github.io/BirdsWhere-aloft/" target="_blank" rel="noopener"
-         title="https://pcmoan70.github.io/BirdsWhere-aloft/"><img class="qr" alt="QR code to open Migration Aloft" src="data:image/png;base64,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"></a>
-      <p class="note">Scan to open Migration&nbsp;Aloft on your phone.</p>
+         title="https://pcmoan70.github.io/BirdsWhere-aloft/"><img class="qr" alt="QR code to open Birds Aloft" src="data:image/png;base64,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"></a>
+      <p class="note">Scan to open Birds&nbsp;Aloft on your phone.</p>
     </div>
     <details class="cred">
       <summary>Credits &amp; licence</summary>
@@ -587,6 +699,9 @@ document.documentElement.classList.add("railoff","tloff");
         map, aloftdata.eu and BirdNET, and keep share-alike layers under the same
         licence.</p>
     </details>
+    <p class="note companion">Companion site: <a href="https://thebirding.site/" target="_blank" rel="noopener">BirdsWhere &mdash; thebirding.site</a>
+      &mdash; a free, in-browser map of bird observations and distribution: where each species is
+      recorded, when it occurs through the year, and live sightings, with field logging and offline maps.</p>
   </aside>
 
   <div id="transport">
@@ -2452,29 +2567,87 @@ document.getElementById("ovltog").addEventListener("click",e=>{
 });
 document.getElementById("ovlcut").addEventListener("input",e=>ovlSetCutoff(+e.target.value));
 // slide tab: collapse / expand the left rail, then re-fit the map to the freed width
-(function(){
-  const t=document.getElementById("railtog");
-  if(!t) return;
-  t.addEventListener("click",()=>{
-    const off=document.documentElement.classList.toggle("railoff");
-    t.setAttribute("aria-expanded", String(!off));
-    t.setAttribute("aria-label", off?"Show the menu":"Hide the menu");
-    t.title = off?"Show the menu":"Hide the menu";
-    resize();
-  });
-})();
+function setRailOpen(open){
+  const t=document.getElementById("railtog"), off=!open;
+  document.documentElement.classList.toggle("railoff",off);
+  t.setAttribute("aria-expanded", String(open));
+  t.setAttribute("aria-label", off?"Show the menu":"Hide the menu");
+  t.title = off?"Show the menu":"Hide the menu";
+  resize();
+}
 // slide tab: collapse the bottom timeline to one line (date, phase, short spark)
+function setTimelineOpen(open){
+  const t=document.getElementById("tltog"), off=!open;
+  document.documentElement.classList.toggle("tloff",off);
+  t.setAttribute("aria-expanded", String(open));
+  t.setAttribute("aria-label", off?"Expand the timeline":"Collapse the timeline");
+  t.title = off?"Expand the timeline":"Collapse the timeline";
+  document.getElementById("tlmini").setAttribute("aria-hidden", String(open));
+  resize();               // map re-fits to the freed height, then draw() -> updateMini()
+}
+document.getElementById("railtog").addEventListener("click",
+  ()=>setRailOpen(document.documentElement.classList.contains("railoff")));
+document.getElementById("tltog").addEventListener("click",
+  ()=>setTimelineOpen(document.documentElement.classList.contains("tloff")));
+
+/* Edge peek. Touch the LEFT or BOTTOM edge of the viewport with the mouse and the
+   collapsed rail / timeline slides out over ~0.9 s. Move the pointer off it before
+   it is halfway and it snaps back; past halfway (or just let it finish) and it pops
+   out and locks, exactly as clicking its tab. Mouse only -- touch has the tabs. */
 (function(){
-  const t=document.getElementById("tltog");
-  if(!t) return;
-  t.addEventListener("click",()=>{
-    const off=document.documentElement.classList.toggle("tloff");
-    t.setAttribute("aria-expanded", String(!off));
-    t.setAttribute("aria-label", off?"Expand the timeline":"Collapse the timeline");
-    t.title = off?"Expand the timeline":"Collapse the timeline";
-    document.getElementById("tlmini").setAttribute("aria-hidden", String(!off));
-    resize();               // map re-fits to the freed height, then draw() -> updateMini()
-  });
+  const html=document.documentElement, rail=document.getElementById("rail"),
+        tp=document.getElementById("transport"), T=900, EDGE=3, MARGIN=12;
+  let pk=null;                                    // the active peek: {which,t0,f,travel}
+  const collapsed = w => html.classList.contains(w==="rail"?"railoff":"tloff");
+  const el = w => w==="rail" ? rail : tp;
+  function start(which){
+    pk={which,t0:performance.now(),f:0,travel:0};
+    if(which==="tl"){                             // show the full timeline, pushed down out of view;
+      const mini=tp.offsetHeight; html.classList.remove("tloff");   // out of the grid meanwhile, so the
+      Object.assign(tp.style,{position:"absolute",left:0,right:0,bottom:0});   // rail keeps its height
+      pk.travel=tp.offsetHeight-mini;
+    }
+    el(which).style.transition="none"; step();
+  }
+  function step(){
+    if(!pk) return;
+    // the tab (or anything else) changed the state under us -> just clean up
+    if(pk.which==="rail" ? !collapsed("rail") : collapsed("tl")){ finish(null); return; }
+    pk.f=Math.min(1,(performance.now()-pk.t0)/T);
+    if(pk.which==="rail") rail.style.transform="translateX("+((pk.f-1)*100)+"%)";
+    else tp.style.transform="translateY("+((1-pk.f)*pk.travel)+"px)";
+    if(pk.f>=1) finish(true); else requestAnimationFrame(step);
+  }
+  function finish(lock){                          // true: pop out + lock, false: snap back, null: clean up
+    const p=pk, e=el(p.which); pk=null;
+    e.style.transition=""; void e.offsetWidth;    // back to the CSS slide for the last leg
+    const redock = () => Object.assign(tp.style,{position:"",left:"",right:"",bottom:""});
+    if(p.which==="rail"){ e.style.transform=""; if(lock) setRailOpen(true); }
+    else if(lock===false){                        // slide back down, then collapse to the mini line
+      e.style.transform="translateY("+p.travel+"px)";
+      setTimeout(()=>{ e.style.transition="none"; html.classList.add("tloff"); e.style.transform=""; redock();
+                       void e.offsetWidth; e.style.transition=""; },300);
+    }
+    else { e.style.transform=""; redock(); if(lock) setTimelineOpen(true); }
+  }
+  addEventListener("pointermove",e=>{
+    if(e.pointerType!=="mouse") return;
+    const x=e.clientX, y=e.clientY;
+    if(pk){                                       // still on the emerging pane?
+      const inside = pk.which==="rail" ? x <= pk.f*rail.offsetWidth + MARGIN
+                   : y >= innerHeight - (tp.offsetHeight - (1-pk.f)*pk.travel) - MARGIN;
+      if(!inside) finish(pk.f>=0.5);
+      return;
+    }
+    const sp=document.getElementById("splash"); if(sp && !sp.hidden) return;
+    if(x<=EDGE && collapsed("rail")) start("rail");
+    else if(y>=innerHeight-EDGE && collapsed("tl")) start("tl");
+  },{passive:true});
+  // clicking a tab mid-peek means "open it": lock instead of toggling back
+  for(const [id,w] of [["railtog","rail"],["tltog","tl"]])
+    document.getElementById(id).addEventListener("click",e=>{
+      if(pk && pk.which===w){ e.stopImmediatePropagation(); finish(true); }
+    },true);
 })();
 // weather controls
 (function(){

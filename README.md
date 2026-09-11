@@ -1,4 +1,4 @@
-# BirdsWhere — Migration Aloft
+# BirdsWhere — Birds Aloft
 
 **Live site: https://pcmoan70.github.io/BirdsWhere-aloft/**
 
@@ -103,6 +103,14 @@ a 1 km line during the phase; most migration is nocturnal.
 - **Open on your phone** — a QR code (with the URL) in settings.
 - **Controls:** drag to pan; wheel or double-click to zoom; `+` / `−` / `0` zoom and
   reset; `←` / `→` step phases; `space` plays. Side and bottom panels collapse.
+- **Edge peek (mouse):** touching the left or bottom edge of the window slides the
+  collapsed settings rail / timeline out (~1 s); move off it before halfway and it
+  snaps back, past halfway (or just wait) and it locks open like clicking its tab.
+- **Companion site** link (BirdsWhere, thebirding.site) at the bottom of the rail
+  and of the intro screen.
+- **Technical notes** (collapsed, at the bottom of the intro / `?` screen): how the
+  US NEXRAD Level II volumes are profiled and put on the European aloft scale, and
+  how the wind-advection particle model is implemented and what it assumes.
 
 ---
 
