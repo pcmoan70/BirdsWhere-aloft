@@ -22,12 +22,13 @@ body{background:var(--ground);color:var(--ink);font-family:var(--f-sans);
 button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
-/* intro splash: shown on load (once per browser), the app's main points */
+/* intro splash: shown once per app version (build.py stamps 52b538d9), and on
+   demand from the ? button top-right / the ? key. Main points + a symbol key. */
 #splash{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;
   padding:24px;background:rgba(4,10,12,.74);backdrop-filter:blur(8px);animation:splashIn .3s ease}
 #splash[hidden]{display:none}
 @keyframes splashIn{from{opacity:0}to{opacity:1}}
-.splash-card{max-width:540px;width:100%;max-height:calc(100% - 40px);overflow:auto;
+.splash-card{max-width:620px;width:100%;max-height:calc(100% - 40px);overflow:auto;
   background:linear-gradient(180deg,rgba(13,43,40,.97),rgba(10,16,27,.97));
   border:1px solid var(--line);border-radius:16px;padding:28px 30px;
   box-shadow:0 24px 60px rgba(0,0,0,.55)}
@@ -40,7 +41,23 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .splash-go{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#052420;
   font-weight:700;padding:11px 20px;border-radius:10px;font-size:15px}
 .splash-go:hover{filter:brightness(1.08)}
-.splash-foot{margin:16px 0 0;color:var(--muted);font-size:11.5px;line-height:1.5}
+.splash-foot{margin:0 0 14px;color:var(--muted);font-size:11.5px;line-height:1.5}
+.splash-cta{position:sticky;bottom:-28px;margin:0 -30px -28px;padding:14px 30px 22px;
+  background:linear-gradient(180deg,rgba(10,16,27,0),rgba(10,16,27,.97) 40%)}
+.splash-card h3{margin:0 0 8px;font-size:11px;font-weight:600;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--muted)}
+.skey{list-style:none;margin:0 0 22px;padding:0;display:grid;grid-template-columns:1fr 1fr;
+  gap:7px 18px;font-size:12.5px;line-height:1.35;color:var(--ink-2)}
+.skey li{display:flex;align-items:center;gap:9px}
+.skey svg{flex:none;width:46px;height:24px;background:var(--ground-2);border-radius:4px}
+.skey b{color:var(--ink);font-weight:600}
+@media (max-width:560px){.skey{grid-template-columns:1fr}}
+#helpbtn{position:absolute;top:14px;right:14px;z-index:6;width:32px;height:32px;
+  border:1px solid var(--line);border-radius:50%;background:var(--panel);
+  backdrop-filter:blur(10px);font-size:16px;font-weight:600;line-height:1;
+  display:grid;place-items:center;color:var(--ink-2)}
+#helpbtn:hover{border-color:var(--accent);color:var(--accent)}
+#app:has(#detail.on) #helpbtn{right:calc(var(--detail) + 14px)}   /* clear the radar panel */
 
 /* desktop hover tooltip: describes the symbol / map area under the cursor */
 #maptip{position:fixed;z-index:20;pointer-events:none;max-width:240px;
@@ -260,29 +277,60 @@ document.documentElement.classList.add("railoff","tloff");
     <h2>Migration Aloft</h2>
     <p class="tag">Nocturnal bird migration across the North Atlantic, measured live by weather radar.</p>
     <ul class="splash-list">
-      <li><b>Radars, live.</b> Weather radars across Europe and the US east coast show where birds
-        are aloft each night. Every arrow points the way they&rsquo;re heading, sized by traffic
-        &mdash; click any radar for its full profile.</li>
+      <li><b>Radars, live.</b> Weather radars across Europe and the US east coast measure the birds
+        flying over them each night &mdash; how many, how high, and which way. Every arrow points
+        the way they&rsquo;re heading, sized by traffic &mdash; click any radar for its full profile.</li>
       <li><b>Move through time.</b> Scrub the timeline or press play to travel through nights and
-        solar phases &mdash; most migration happens after dark.</li>
+        solar phases (Dawn, Day, Dusk, Night) &mdash; most migration happens after dark.</li>
       <li><b>See the weather.</b> Wind, precipitation and frost overlays reveal what pushes birds
         around, and a night-shadow band tracks sunset across the ocean.</li>
       <li><b>Follow the wind.</b> Click the map to release particle traces &mdash; swarms that drift
         with the wind in lockstep with the timeline.</li>
     </ul>
-    <button type="button" class="splash-go" id="splashgo">Explore the map &rarr;</button>
-    <p class="splash-foot">Data: aloftdata.eu &middot; NOAA NEXRAD &middot; ECMWF &nbsp;&middot;&nbsp; full guide in the menu (top-left)</p>
+    <h3>Symbols on the map</h3>
+    <ul class="skey">
+      <li><svg viewBox="0 0 46 24" aria-hidden="true"><path d="M7 12H30" stroke="#E8A33D" stroke-width="3"/><path d="M29 6L40 12L29 18Z" fill="#E8A33D"/><circle cx="7" cy="12" r="1.5" fill="rgba(167,180,201,.75)"/></svg><span><b>European radar</b> &mdash; arrow points where the birds head; length and brightness scale with traffic</span></li>
+      <li><svg viewBox="0 0 46 24" aria-hidden="true"><path d="M7 12H30" stroke="#7FD8C4" stroke-width="3"/><path d="M29 6L40 12L29 18Z" fill="#7FD8C4"/><circle cx="7" cy="12" r="1.5" fill="rgba(167,180,201,.75)"/></svg><span><b>US NEXRAD radar</b> &mdash; the same measure and scale, drawn teal</span></li>
+      <li><svg viewBox="0 0 46 24" aria-hidden="true"><path d="M9 12H30" stroke="#E8A33D" stroke-width="3" stroke-dasharray="3.5 2.8"/><path d="M29 6L40 12L29 18Z" fill="#E8A33D"/><circle cx="8" cy="12" r="2.6" fill="none" stroke="rgba(150,214,199,.9)" stroke-width="1.2"/></svg><span><b>Dashed, hollow tail</b> &mdash; density measured, heading borrowed from neighbours</span></li>
+      <li><svg viewBox="0 0 46 24" aria-hidden="true"><circle cx="23" cy="12" r="6" fill="none" stroke="rgba(150,214,199,.8)" stroke-width="1.4"/><circle cx="23" cy="12" r="1.6" fill="rgba(150,214,199,.9)"/></svg><span><b>Ring with a dot</b> &mdash; birds detected, no direction available</span></li>
+      <li><svg viewBox="0 0 46 24" aria-hidden="true"><circle cx="23" cy="12" r="3" fill="none" stroke="rgba(124,138,163,.7)" stroke-width="1"/></svg><span><b>Small grey ring</b> &mdash; no data for this phase (an ordinary outage)</span></li>
+      <li><svg viewBox="0 0 46 24" aria-hidden="true"><path d="M19 8L27 16M27 8L19 16" stroke="rgba(7,12,22,.9)" stroke-width="3" stroke-linecap="round"/><path d="M19 8L27 16M27 8L19 16" stroke="#FF4438" stroke-width="1.6" stroke-linecap="round"/></svg><span><b>Red cross</b> &mdash; radar silent for a whole solar day</span></li>
+      <li><svg viewBox="0 0 46 24" aria-hidden="true"><g stroke="rgba(228,244,255,.92)" stroke-width="1.6" stroke-linecap="round" fill="none"><path d="M12 18L34 6"/><path d="M34 6L36 12"/><path d="M30 8.2L32 14.2"/><path d="M26 10.4L27 13.4"/></g></svg><span><b>Wind barb</b> &mdash; the wind blows from the feathered end; half feather 5&nbsp;kt, full 10, pennant 50</span></li>
+      <li><svg viewBox="0 0 46 24" aria-hidden="true"><path d="M6 8Q10 4 14 8T22 8T30 8T38 8Q42 10 42 14Q40 18 34 19T20 20T6 18Z" fill="rgba(150,152,160,.26)" stroke="rgba(196,210,230,.7)" stroke-width="1.1"/></svg><span><b>Grey wiggly region</b> &mdash; precipitation, a barrier birds will not cross</span></li>
+      <li><svg viewBox="0 0 46 24" aria-hidden="true"><rect x="8" y="4" width="30" height="16" fill="rgba(66,132,214,.22)" stroke="rgba(150,200,245,.8)" stroke-width="1.1"/><g stroke="rgba(150,200,245,.55)" stroke-width="1"><path d="M8 20L24 4M14 20L30 4M20 20L36 4M26 20L38 8M32 20L38 14"/></g></svg><span><b>Blue hatched region</b> &mdash; freezing ground; a frost triggers departures</span></li>
+      <li><svg viewBox="0 0 46 24" aria-hidden="true"><rect x="0" y="0" width="46" height="24" fill="rgba(255,239,206,.16)"/><path d="M26 0Q18 12 26 24H46V0Z" fill="rgba(4,9,22,.7)"/></svg><span><b>Night shadow</b> &mdash; the dark side is night; its edge is the sunset line</span></li>
+      <li><svg viewBox="0 0 46 24" aria-hidden="true"><path d="M6 17C14 14 18 8 26 8S36 12 40 8" fill="none" stroke="rgba(232,163,61,.7)" stroke-width="2.2" stroke-linecap="round"/><path d="M37 5L42 8L37 11" fill="none" stroke="rgba(232,163,61,.9)" stroke-width="1.4" stroke-linecap="round"/></svg><span><b>Gold streamlines</b> &mdash; the week&rsquo;s average migration routes</span></li>
+      <li><svg viewBox="0 0 46 24" aria-hidden="true"><g stroke-width="2" stroke-linecap="round"><path d="M6 6h1M11 6h1M16 5h1M21 4h1M26 4h1" stroke="#A855F7"/><path d="M6 12h1M11 12h1M16 12h1M21 13h1M26 13h1" stroke="#7FD8C4"/><path d="M6 18h1M11 18h1M16 19h1M21 20h1M26 20h1" stroke="#FFB05C"/></g></svg><span><b>Particle traces</b> &mdash; tracers riding the wind: <span style='color:#A855F7'>purple</span> from your click, <span style='color:#7FD8C4'>teal</span> from the American coast, <span style='color:#FFB05C'>amber</span> from the European coast</span></li>
+      <li><svg viewBox="0 0 46 24" aria-hidden="true"><defs><linearGradient id="skwash" x1="0" x2="1"><stop offset="0" stop-color="#2E8BD4"/><stop offset=".5" stop-color="#2E8BD4" stop-opacity="0"/><stop offset="1" stop-color="#D4522E"/></linearGradient></defs><rect x="0" y="0" width="46" height="24" fill="url(#skwash)"/></svg><span><b>Background wash</b> &mdash; modelled breeding-species turnover: red where species are arriving, blue where they are leaving</span></li>
+    </ul>
+    <p class="splash-foot">Data: aloftdata.eu &middot; NOAA NEXRAD &middot; ECMWF &nbsp;&middot;&nbsp;
+      Full guide: <i>How to read this map</i> in the left panel &nbsp;&middot;&nbsp;
+      Reopen this screen with the <b>?</b> button (top-right) or the <kbd>?</kbd> key
+      &nbsp;&middot;&nbsp; build 52b538d9</p>
+    <div class="splash-cta"><button type="button" class="splash-go" id="splashgo">Explore the map &rarr;</button></div>
   </div>
 </div>
 <script>
 (function(){
   var sp=document.getElementById("splash"); if(!sp) return;
-  var seen=false; try{ seen=localStorage.getItem("aloft_splash_v1")==="1"; }catch(e){}
-  if(!seen) sp.hidden=false;                                   // first visit this browser -> show
-  function close(){ sp.hidden=true; try{ localStorage.setItem("aloft_splash_v1","1"); }catch(e){} }
+  var KEY="aloft_splash_seen", VER="52b538d9", openedBy=null;
+  var seen=false; try{ seen=localStorage.getItem(KEY)===VER; }catch(e){}
+  if(!seen) sp.hidden=false;                    // first load of this app version -> show
+  function open(by){ openedBy=by; sp.hidden=false; document.getElementById("splashgo").focus(); }
+  function close(){
+    sp.hidden=true;
+    try{ localStorage.setItem(KEY,VER); localStorage.removeItem("aloft_splash_v1"); }catch(e){}
+    if(openedBy){ openedBy.focus(); openedBy=null; }
+  }
   document.getElementById("splashgo").addEventListener("click",close);
   sp.addEventListener("click",function(e){ if(e.target===sp) close(); });   // click backdrop
-  addEventListener("keydown",function(e){ if(!sp.hidden && e.key==="Escape") close(); });
+  addEventListener("keydown",function(e){
+    if(!sp.hidden && e.key==="Escape") close();
+    else if(sp.hidden && e.key==="?" && !/^(INPUT|TEXTAREA)$/.test(e.target.tagName)) open(null);
+  });
+  addEventListener("DOMContentLoaded",function(){
+    var b=document.getElementById("helpbtn"); if(b) b.addEventListener("click",function(){ open(b); });
+  });
 })();
 </script>
 
@@ -297,6 +345,7 @@ document.documentElement.classList.add("railoff","tloff");
       <button id="zfit" aria-label="Reset the view" title="Fit Europe (0)">&#9633;</button>
       <div id="zlevel">1.0&times;</div>
     </div>
+    <button id="helpbtn" aria-label="About this map and its symbols" title="About this map (?)">?</button>
   </div>
 
   <aside id="rail">
@@ -367,7 +416,8 @@ document.documentElement.classList.add("railoff","tloff");
 
       <p><b>Controls.</b> Drag to pan, wheel or double-click to zoom,
         <kbd>+</kbd>/<kbd>&minus;</kbd>/<kbd>0</kbd> zoom and reset,
-        <kbd>&larr;</kbd>/<kbd>&rarr;</kbd> step phases, <kbd>space</kbd> plays.
+        <kbd>&larr;</kbd>/<kbd>&rarr;</kbd> step phases, <kbd>space</kbd> plays,
+        <kbd>?</kbd> (or the button top-right) reopens the intro with the symbol key.
         The phase strip under the date filters which phases the scrubber visits.
         Side and bottom panels collapse with their tabs; the map re-fits.</p>
     </details>

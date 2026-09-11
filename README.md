@@ -96,6 +96,9 @@ a 1 km line during the phase; most migration is nocturnal.
   only meaningful gains/losses tint the map.
 
 ### Other
+- **Intro / symbol key** — a splash with the main points and a key to every map
+  symbol; shows once per app build (first visit, and again after each UI update),
+  then on demand from the `?` button top-right or the `?` key.
 - **Flight altitude** legend for the current frame.
 - **Open on your phone** — a QR code (with the URL) in settings.
 - **Controls:** drag to pan; wheel or double-click to zoom; `+` / `−` / `0` zoom and
