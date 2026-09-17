@@ -22,7 +22,7 @@ body{background:var(--ground);color:var(--ink);font-family:var(--f-sans);
 button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
-/* intro splash: shown once per app version (build.py stamps 11f6d8b8), and on
+/* intro splash: shown once per app version (build.py stamps 45202b28), and on
    demand from the ? button top-right / the ? key. Main points + a symbol key. */
 #splash{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;
   padding:24px;background:rgba(4,10,12,.74);backdrop-filter:blur(8px);animation:splashIn .3s ease}
@@ -72,7 +72,8 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   backdrop-filter:blur(10px);font-size:16px;font-weight:600;line-height:1;
   display:grid;place-items:center;color:var(--ink-2)}
 #helpbtn:hover{border-color:var(--accent);color:var(--accent)}
-#app:has(#detail.on) #helpbtn{right:calc(var(--detail) + 14px)}   /* clear the radar panel */
+#app:has(#detail.on) #helpbtn,
+#app:has(#detail.on) #zoom{right:calc(var(--detail) + 14px)}   /* clear the radar panel */
 
 /* desktop hover tooltip: describes the symbol / map area under the cursor */
 #maptip{position:fixed;z-index:20;pointer-events:none;max-width:240px;
@@ -242,8 +243,14 @@ html.tloff #transport{padding:9px 18px}
 #close{font-size:20px;line-height:1;color:var(--muted);padding:0 3px}
 #close:hover{color:var(--ink)}
 #rose{width:100%;height:210px;display:block}
-.dsub{font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);
-  font-weight:600;margin:-4px 0 -8px}
+/* the pane's blocks (rose, altitude profile, time-height, sectors) each collapse */
+.dsec summary{cursor:pointer;list-style:none;position:relative;padding-right:16px;line-height:1.4;
+  font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.dsec summary::-webkit-details-marker{display:none}
+.dsec summary::after{content:"\2212";position:absolute;right:0;top:0;font-size:12px;line-height:1;letter-spacing:0}
+.dsec:not([open]) summary::after{content:"+"}
+.dsec summary:hover{color:var(--ink-2)}
+.dsec>canvas,.dsec>table{margin-top:8px}
 #hprof{width:100%;height:150px;display:block}
 #thheat{width:100%;height:150px;display:block;margin-top:2px}
 table{width:100%;border-collapse:collapse;font-family:var(--f-mono);font-size:11px;
@@ -321,7 +328,7 @@ document.documentElement.classList.add("railoff","tloff");
     <p class="splash-foot">Data: aloftdata.eu &middot; NOAA NEXRAD &middot; ECMWF &nbsp;&middot;&nbsp;
       Full guide: <i>How to read this map</i> in the left panel &nbsp;&middot;&nbsp;
       Reopen this screen with the <b>?</b> button (top-right) or the <kbd>?</kbd> key
-      &nbsp;&middot;&nbsp; build 11f6d8b8</p>
+      &nbsp;&middot;&nbsp; build 45202b28</p>
     <p class="splash-companion">Companion site: <a href="https://thebirding.site/" target="_blank" rel="noopener">BirdsWhere &mdash; thebirding.site</a>
       &mdash; a free, in-browser map of bird observations and distribution: where each species is
       recorded, when it occurs through the year, and live sightings, with field logging and offline maps.</p>
@@ -423,7 +430,7 @@ document.documentElement.classList.add("railoff","tloff");
 <script>
 (function(){
   var sp=document.getElementById("splash"); if(!sp) return;
-  var KEY="aloft_splash_seen", VER="11f6d8b8", openedBy=null;
+  var KEY="aloft_splash_seen", VER="45202b28", openedBy=null;
   var seen=false; try{ seen=localStorage.getItem(KEY)===VER; }catch(e){}
   if(!seen) sp.hidden=false;                    // first load of this app version -> show
   function open(by){ openedBy=by; sp.hidden=false; document.getElementById("splashgo").focus(); }
@@ -486,8 +493,8 @@ document.documentElement.classList.add("railoff","tloff");
         <b>red cross</b> means it has been silent a whole solar day. <b>Flow</b>
         mode blends the same measurements into an animated field between radars
         &mdash; blank areas simply have no radar within range. Click any radar for
-        its full profile: traffic by phase, flight altitudes, and the sector
-        breakdown &mdash; <span style="color:#7FD8C4">teal US radars</span> included, on the
+        its full profile: heading rose, flight altitudes, density and heading history,
+        and the sector breakdown (each block collapses with its heading) &mdash; <span style="color:#7FD8C4">teal US radars</span> included, on the
         same birds/km scale.</p>
 
       <p><b>Weather symbols.</b> Wind <b>barbs</b> use the meteorological
@@ -589,7 +596,7 @@ document.documentElement.classList.add("railoff","tloff");
         <div class="ramp" style="background:linear-gradient(90deg,rgba(127,216,196,.14),rgba(127,216,196,.95))"></div>
         <div class="rampx"><span>less</span><span>traffic volume</span><span>more</span></div>
       </div>
-      <label class="wxchk"><input type="checkbox" id="wxptradar"> Radar-driven particle release <span style="color:#7FD8C4">(teal)</span></label>
+      <label class="wxchk"><input type="checkbox" id="wxptradar" checked> Radar-driven particle release <span style="color:#7FD8C4">(teal)</span></label>
 
       <div class="lbl" style="margin-top:10px">European radars (aloft)</div>
       <label class="wxchk"><input type="checkbox" id="wxptradareu"> Radar-driven particle release <span style="color:#FFB05C">(amber)</span></label>
@@ -598,7 +605,7 @@ document.documentElement.classList.add("railoff","tloff");
       <label class="wxchk"><input type="checkbox" id="wxptcl" checked> Show &mdash; click &middot; right-click to seed</label>
       <label class="wxchk"><input type="checkbox" id="wxptceu"> European departure line <span style="color:#FFB05C">(amber)</span></label>
       <button type="button" id="ptclear" class="ptclear">Clear swarms</button>
-      <p class="note">The 0.25&deg; ECMWF weather, reduced to what matters for migration: <b>wind</b> barbs in the migration band &mdash; the strongest of the 925/850&nbsp;hPa levels (~800&ndash;1500&nbsp;m), shown from 5&nbsp;m/s &mdash; or at the surface (10&nbsp;m), toggle above; the leading edge of <b>precipitation</b> (a barrier birds won't cross), and where the <b>ground is freezing</b> (&le;0&nbsp;&deg;C &mdash; blue hatched regions, distinct from grey precipitation; a frost triggers departures). <b>Particle traces</b>: click the map to release a <span style="color:#A855F7">purple</span>, persistent swarm (no lifetime) that rides the migration-band wind in lockstep with the timeline: step, scrub or play the dates to advect them (one phase &asymp; 3.4&nbsp;h of transport; a still timeline is a still picture). Right-click seeds a line of tracers along the American Atlantic coast, Miami to northern Labrador &mdash; the Nearctic departure line (<span style="color:#7FD8C4">teal</span>). Enable <b>European departure line</b> above and the same right-click also seeds the Atlantic-facing European seaboard, North Cape to Morocco, in <span style="color:#FFB05C">amber</span> (zoom out to watch). <b>Night shadow</b> shades the sunlit day side warm and the night side dark for each date/phase &mdash; because the map spans an ocean, a "night" phase falls at very different clock times in America and Europe, and the terminator makes that offset visible. <b>US east-coast radars (NEXRAD)</b> adds the American seaboard radars in <span style="color:#7FD8C4">teal</span> (matching the Nearctic tracers). They are processed the same way as Europe &mdash; the vol2bird radar equation into bird density and migration traffic (<b>birds/km</b>) &mdash; so a teal arrow reads on the same scale as a European one, and clicking one opens the same full profile (rose, flight altitudes, density &amp; heading history). Binned on each radar's own local night. Enable <b>Radar-driven release</b> and the radars seed tracers along the American <b>shoreline</b> automatically as the timeline advances (no right-click needed): each radar releases about <b>one tracer per 250 birds</b> of its measured traffic, spread along its shoreline &mdash; daytime detections (mostly insects and local movement) release at a quarter of that &mdash; and each tracer draws its own <b>size</b> from the radar-night's spread of flight speeds (radar airspeed &mdash; ground speed minus wind &mdash; stands in for size, which sets endurance: a small passerine a few days, a wader up to two weeks), so one release carries a mix of guilds. The released tracers are drawn <span style="color:#7FD8C4">teal</span> to match the US layer. The same automatic release is available for the <b>European aloft radars</b>: enable <b>Radar-driven release</b> under <i>European radars</i> and the Atlantic-facing seaboard (North Cape to Morocco) seeds <span style="color:#FFB05C">amber</span> tracers each phase, one per 250 birds/km of each radar's traffic. Both radar releases run <b>independently of the <i>Show</i> traces toggle</b> &mdash; turn traces off and the radar swarms keep flowing (clearing only when every release is off).</p>
+      <p class="note">The 0.25&deg; ECMWF weather, reduced to what matters for migration: <b>wind</b> barbs in the migration band &mdash; the strongest of the 925/850&nbsp;hPa levels (~800&ndash;1500&nbsp;m), shown from 5&nbsp;m/s &mdash; or at the surface (10&nbsp;m), toggle above; the leading edge of <b>precipitation</b> (a barrier birds won't cross), and where the <b>ground is freezing</b> (&le;0&nbsp;&deg;C &mdash; blue hatched regions, distinct from grey precipitation; a frost triggers departures). <b>Particle traces</b>: click the map to release a <span style="color:#A855F7">purple</span>, persistent swarm (no lifetime) that rides the migration-band wind in lockstep with the timeline: step, scrub or play the dates to advect them (one phase &asymp; 3.4&nbsp;h of transport; a still timeline is a still picture). Right-click seeds a line of tracers along the American Atlantic coast, Miami to northern Labrador &mdash; the Nearctic departure line (<span style="color:#7FD8C4">teal</span>). Enable <b>European departure line</b> above and the same right-click also seeds the Atlantic-facing European seaboard, North Cape to Morocco, in <span style="color:#FFB05C">amber</span> (zoom out to watch). <b>Night shadow</b> shades the sunlit day side warm and the night side dark for each date/phase &mdash; because the map spans an ocean, a "night" phase falls at very different clock times in America and Europe, and the terminator makes that offset visible. <b>US east-coast radars (NEXRAD)</b> adds the American seaboard radars in <span style="color:#7FD8C4">teal</span> (matching the Nearctic tracers). They are processed the same way as Europe &mdash; the vol2bird radar equation into bird density and migration traffic (<b>birds/km</b>) &mdash; so a teal arrow reads on the same scale as a European one, and clicking one opens the same full profile (rose, flight altitudes, density &amp; heading history). Binned on each radar's own local night. <b>Radar-driven release</b> (on by default) makes the radars seed tracers along the American <b>shoreline</b> automatically as the timeline advances (no right-click needed): each radar releases about <b>one tracer per 250 birds</b> of its measured traffic, spread along its shoreline &mdash; daytime detections (mostly insects and local movement) release at a quarter of that &mdash; and each tracer draws its own <b>size</b> from the radar-night's spread of flight speeds (radar airspeed &mdash; ground speed minus wind &mdash; stands in for size, which sets endurance: a small passerine a few days, a wader up to two weeks), so one release carries a mix of guilds. The released tracers are drawn <span style="color:#7FD8C4">teal</span> to match the US layer. The same automatic release is available for the <b>European aloft radars</b>: enable <b>Radar-driven release</b> under <i>European radars</i> and the Atlantic-facing seaboard (North Cape to Morocco) seeds <span style="color:#FFB05C">amber</span> tracers each phase, one per 250 birds/km of each radar's traffic. Both radar releases run <b>independently of the <i>Show</i> traces toggle</b> &mdash; turn traces off and the radar swarms keep flowing (clearing only when every release is off).</p>
     </div>
 
     <div class="grp" id="routesgrp">
@@ -748,15 +755,25 @@ document.documentElement.classList.add("railoff","tloff");
         <a id="d-crow" href="#" target="_blank" rel="noopener">open in CROW &#8599;</a></div>
       <button id="close" aria-label="Close panel">&times;</button>
     </div>
-    <canvas id="rose"></canvas>
-    <div class="dsub" id="hprof-lbl" style="display:none">Traffic by altitude</div>
-    <canvas id="hprof" style="display:none"></canvas>
-    <div class="dsub" id="thheat-lbl" style="display:none">Density &amp; heading over the last weeks &middot; altitude &times; time</div>
-    <canvas id="thheat" style="display:none;cursor:pointer"></canvas>
-    <table>
-      <thead><tr id="d-head"><th>Sector</th><th>MT</th><th>U</th><th>V</th><th>Share</th></tr></thead>
-      <tbody id="d-rows"></tbody>
-    </table>
+    <details class="dsec" open>
+      <summary>Heading rose</summary>
+      <canvas id="rose"></canvas>
+    </details>
+    <details class="dsec" open style="display:none">
+      <summary id="hprof-lbl">Traffic by altitude</summary>
+      <canvas id="hprof"></canvas>
+    </details>
+    <details class="dsec" open style="display:none">
+      <summary id="thheat-lbl">Density &amp; heading over the last weeks &middot; altitude &times; time</summary>
+      <canvas id="thheat" style="cursor:pointer"></canvas>
+    </details>
+    <details class="dsec" open>
+      <summary>Sectors</summary>
+      <table>
+        <thead><tr id="d-head"><th>Sector</th><th>MT</th><th>U</th><th>V</th><th>Share</th></tr></thead>
+        <tbody id="d-rows"></tbody>
+      </table>
+    </details>
     <p class="note" id="d-note"></p>
   </aside>
 </div>
@@ -1542,7 +1559,7 @@ function stepFlow(){
    puff of passive tracers; they ride the current frame's full 925 hPa wind
    grid (frame `wgrid`: stride-6 deci-m/s ints, null = no coverage) and leave
    fading trails on their own canvas. One real second = one simulated hour. */
-let ptOn=true, ptEU=false, ptRadar=false, ptRadarEU=false, ptParts=[], ptView=null;   // traces on; EU line + US/EU radar-release off
+let ptOn=true, ptEU=false, ptRadar=true, ptRadarEU=false, ptParts=[], ptView=null;   // traces + US radar-release on; EU line + EU release off
 const PT_MAX=4000;
 const DAYTIME_FACTOR=0.25;   // daytime radar detections (mostly insects/local) release at 25% of a night phase
 const PT_COL_NA="127,216,196";                 // Nearctic tracers: teal
@@ -2251,7 +2268,7 @@ let thHit=null;
 })();
 function drawTimeHeight(ri){
   const lbl=document.getElementById("thheat-lbl"), rc=document.getElementById("thheat");
-  if(!hasVH){ lbl.style.display="none"; rc.style.display="none"; thHit=null; return; }
+  if(!hasVH){ lbl.parentElement.style.display="none"; thHit=null; return; }
   const NDAYS=7, cols=[];
   // gather this radar's records for the recent frames (chronological)
   const byRad = i => FRAMES[i].find(r=>r[I_RI]===ri);
@@ -2281,8 +2298,8 @@ function drawTimeHeight(ri){
     }
     cols.push({ti:i, key:TIMES[i], prof, has:!!r, u:cu, v:cv, mt, dir, bor});
   }
-  if(peak<=0){ lbl.style.display="none"; rc.style.display="none"; thHit=null; return; }
-  lbl.style.display=""; rc.style.display="";
+  if(peak<=0){ lbl.parentElement.style.display="none"; thHit=null; return; }
+  lbl.parentElement.style.display="";
   const anyBor=cols.some(c=>c.bor);
   lbl.innerHTML="Density &amp; heading, last 7 days &middot; altitude &times; time &middot; "
     +"<span style='color:#7C8AA3'>click to jump</span>"
@@ -2384,11 +2401,11 @@ function drawHProfile(rec){
   const ok = dOnly ? hasVH : hasHeight;
   const H=[]; let peak=0;
   if(ok && rec) for(let i=0;i<NH;i++){ const v=(rec[base+i]||0)*(dOnly?scale:1); H.push(v); if(v>peak)peak=v; }
-  if(!ok || !rec || peak<=0){ lbl.style.display="none"; rc.style.display="none"; thHit=null; return; }
+  if(!ok || !rec || peak<=0){ lbl.parentElement.style.display="none"; thHit=null; return; }
   lbl.textContent = densMode ? "Density by altitude"
                   : estTraffic ? "Traffic by altitude (est.)"
                   : "Traffic by altitude";
-  lbl.style.display=""; rc.style.display="";
+  lbl.parentElement.style.display="";
   const d=Math.min(2,devicePixelRatio||1), w=rc.clientWidth, hgt=150;
   rc.width=w*d; rc.height=hgt*d; const g=rc.getContext("2d"); g.setTransform(d,0,0,d,0,0);
   g.clearRect(0,0,w,hgt);
@@ -2511,6 +2528,7 @@ function openDetail(ri){
   fit(); drawBase(); draw();
 }
 function redrawDetail(){ if(sel!=null) openDetail(sel); }   // US radars now use openDetail too
+document.querySelectorAll("#detail .dsec").forEach(d=>d.addEventListener("toggle",()=>{ if(d.open) redrawDetail(); }));
 document.getElementById("close").onclick=()=>{
   sel=null; document.getElementById("detail").classList.remove("on"); resize(); };
 
@@ -2678,7 +2696,7 @@ document.getElementById("tltog").addEventListener("click",
   document.getElementById("uslegend").hidden=true;            // US now uses the same arrow scale as Europe
   usEl.addEventListener("change",e=>{ showUS=e.target.checked; draw(); });
   const prEl=document.getElementById("wxptradar");
-  prEl.disabled=!hasUS;                                        // needs NEXRAD data
+  prEl.disabled=!hasUS; if(!hasUS) ptRadar=false; prEl.checked=ptRadar;   // on by default, needs NEXRAD data
   prEl.addEventListener("change",e=>{ ptRadar=e.target.checked; if(!ptOn && !ptRadar && !ptRadarEU) ptClear(); });
   document.getElementById("wxptradareu").addEventListener("change",e=>{
     ptRadarEU=e.target.checked; if(!ptOn && !ptRadar && !ptRadarEU) ptClear(); });   // European seaboard release

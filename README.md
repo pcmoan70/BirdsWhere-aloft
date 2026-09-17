@@ -32,8 +32,10 @@ a 1 km line during the phase; most migration is nocturnal.
 - A **dashed** arrow = density measured but no direction (heading borrowed from
   neighbours); a **hollow ring** = no data this phase (ordinary outage); a
   **red cross** = silent for a whole solar day.
-- **Click a radar** for its full profile: traffic by phase, flight altitudes, and
-  the compass-sector breakdown (with a link out to the aloft/CROW profile).
+- **Click a radar** for its full profile: heading rose, traffic by altitude,
+  density & heading over the last 7 days, and the compass-sector table (with a
+  link out to the aloft/CROW profile). Each block collapses with its heading
+  and stays that way while you scrub or pick other radars.
   **US teal radars** open their own panel too — a compass with the mean heading,
   band density (birds/km³), and the day's phase-by-phase values.
 
@@ -62,7 +64,7 @@ a 1 km line during the phase; most migration is nocturnal.
 - Tracers advect **in lockstep with the timeline** (one phase ≈ 3.4 h, dispersing,
   up to ~8 simulated days); a still timeline is a still picture, and stepping
   backwards or restarting resets them.
-- **Radar-driven release (automatic)** — with this on, each phase the radars seed
+- **Radar-driven release (automatic)** — on by default for the US radars; each phase they seed
   tracers along the US shoreline at ~**1 per 250 birds** of measured traffic
   (daytime phases release ¼ as many), drawn teal. Each tracer draws its
   **size/guild** from the radar-night's spread of
