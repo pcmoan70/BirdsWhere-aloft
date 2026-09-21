@@ -16,6 +16,9 @@ a 1 km line during the phase; most migration is nocturnal.
 ### Timeline & playback (bottom bar)
 - **Play / pause** the sequence of solar phases; **scrub** the slider; **step** one
   phase at a time. Playback stops at the last phase rather than wrapping.
+- **Data-end markers** on the traffic graph: dashed lines (labelled when the
+  timeline is expanded) where the European radar, US radar and weather records
+  each end, so the tail of the record is not read as a quiet night.
 - **Phase strip** under the date filters which phases the scrubber visits (e.g.
   nights only).
 - **Day / phase mode** toggles between per-phase frames and one aggregated frame

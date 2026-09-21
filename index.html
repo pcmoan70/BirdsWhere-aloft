@@ -22,7 +22,7 @@ body{background:var(--ground);color:var(--ink);font-family:var(--f-sans);
 button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
-/* intro splash: shown once per app version (build.py stamps 45202b28), and on
+/* intro splash: shown once per app version (build.py stamps 8ccfa11f), and on
    demand from the ? button top-right / the ? key. Main points + a symbol key. */
 #splash{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;
   padding:24px;background:rgba(4,10,12,.74);backdrop-filter:blur(8px);animation:splashIn .3s ease}
@@ -328,7 +328,7 @@ document.documentElement.classList.add("railoff","tloff");
     <p class="splash-foot">Data: aloftdata.eu &middot; NOAA NEXRAD &middot; ECMWF &nbsp;&middot;&nbsp;
       Full guide: <i>How to read this map</i> in the left panel &nbsp;&middot;&nbsp;
       Reopen this screen with the <b>?</b> button (top-right) or the <kbd>?</kbd> key
-      &nbsp;&middot;&nbsp; build 45202b28</p>
+      &nbsp;&middot;&nbsp; build 8ccfa11f</p>
     <p class="splash-companion">Companion site: <a href="https://thebirding.site/" target="_blank" rel="noopener">BirdsWhere &mdash; thebirding.site</a>
       &mdash; a free, in-browser map of bird observations and distribution: where each species is
       recorded, when it occurs through the year, and live sightings, with field logging and offline maps.</p>
@@ -430,7 +430,7 @@ document.documentElement.classList.add("railoff","tloff");
 <script>
 (function(){
   var sp=document.getElementById("splash"); if(!sp) return;
-  var KEY="aloft_splash_seen", VER="45202b28", openedBy=null;
+  var KEY="aloft_splash_seen", VER="8ccfa11f", openedBy=null;
   var seen=false; try{ seen=localStorage.getItem(KEY)===VER; }catch(e){}
   if(!seen) sp.hidden=false;                    // first load of this app version -> show
   function open(by){ openedBy=by; sp.hidden=false; document.getElementById("splashgo").focus(); }
@@ -535,7 +535,10 @@ document.documentElement.classList.add("railoff","tloff");
         <kbd>+</kbd>/<kbd>&minus;</kbd>/<kbd>0</kbd> zoom and reset,
         <kbd>&larr;</kbd>/<kbd>&rarr;</kbd> step phases, <kbd>space</kbd> plays,
         <kbd>?</kbd> (or the button top-right) reopens the intro with the symbol key.
-        The phase strip under the date filters which phases the scrubber visits.
+        The phase strip under the date filters which phases the scrubber visits. Dashed
+        lines on the traffic graph mark where each source&rsquo;s data ends:
+        <span style="color:#E8A33D">European radar</span>, <span style="color:#7FD8C4">US radar</span>
+        and <span style="color:#6FC6FF">weather</span> (the forecast runs a few days past the radar).
         Side and bottom panels collapse with their tabs; the map re-fits. With a mouse,
         touching the left or bottom edge of the window slides a collapsed panel out for a
         look: move off it before it is halfway and it snaps back, past halfway it stays open.</p>
@@ -2155,9 +2158,31 @@ function stats(){
 
 /* ---------- sparkline of network traffic through time ---------- */
 const sp=document.getElementById("spark"), spx=sp.getContext("2d");
-let SERIES=null;
+let SERIES=null, ENDS=null;   // ENDS: last frame index carrying EU radar / US radar / weather
+const WX_DATES = new Set(WX_HAS ? WX.frames.map(f=>f.date) : []);
 function series(){
   SERIES=FRAMES.map(f=>f.reduce((a,r)=>a+val(r),0));
+  let eu=-1, us=-1, wx=-1;
+  FRAMES.forEach((f,i)=>{ for(const r of f){ const R=RAD[r[I_RI]]; if(!R) continue; if(R.us) us=i; else eu=i; } });
+  if(WX_HAS) TIMES.forEach((t,i)=>{ const [d,p]=splitKey(t);
+    if(TIMES===DAY_TIMES ? WX_DATES.has(d) : wxIndex[d+"|"+(PHASES[p]||"")]!=null) wx=i; });
+  ENDS=[["EU radar",eu,"#E8A33D"],["US radar",us,"#7FD8C4"],["weather",wx,"#6FC6FF"]].filter(e=>e[1]>=0);
+}
+// Where each source's data ends: a dashed line per source at its last frame
+// (labelled on the full spark, bare on the mini one), so the end of the radar
+// record is not mistaken for a quiet night.
+function drawEnds(g,w,h,n,labels){
+  if(!ENDS) return;
+  g.save(); g.setLineDash([2,2]); g.lineWidth=1;
+  if(labels){ g.font="600 8px "+getComputedStyle(document.body).getPropertyValue("--f-mono"); g.textAlign="right"; g.textBaseline="middle"; }
+  ENDS.forEach(([name,i,col],k)=>{
+    const X=Math.min(w-0.5, i/(n-1)*w);
+    g.strokeStyle=col; g.beginPath(); g.moveTo(X,0); g.lineTo(X,h); g.stroke();
+    if(labels){ const y=7+9*k;
+      g.lineWidth=3; g.strokeStyle="rgba(8,32,30,.85)"; g.setLineDash([]); g.strokeText(name,X-3,y);
+      g.fillStyle=col; g.fillText(name,X-3,y); g.setLineDash([2,2]); g.lineWidth=1; }
+  });
+  g.restore();
 }
 // Solar-phase tint for the timeline bands: light for day, dark for night, mid for
 // twilight - so the day/night rhythm reads along the timeline behind the traffic curve.
@@ -2167,6 +2192,7 @@ const PH_BAND = { day:"rgba(127,216,196,.16)", polar_day:"rgba(127,216,196,.16)"
   polar_night:"rgba(12,30,44,.42)" };
 function drawSpark(){
   const w=sp.clientWidth, h=sp.clientHeight, d=Math.min(2,devicePixelRatio||1);
+  if(!w || !h) return;                 // timeline collapsed: drawn when it opens (draw -> updateMini)
   sp.width=w*d; sp.height=h*d; spx.setTransform(d,0,0,d,0,0);
   spx.clearRect(0,0,w,h);
   const n=SERIES.length, cw=w/n;
@@ -2183,7 +2209,8 @@ function drawSpark(){
   SERIES.forEach((v,i)=>{const X=i/(n-1)*w, Y=h-Math.sqrt(v/mx)*(h-3);
     i?spx.lineTo(X,Y):spx.moveTo(X,Y);});
   spx.strokeStyle="rgba(127,216,196,.6)"; spx.lineWidth=1; spx.stroke();
-  // 3) current-frame marker
+  // 3) where each data source ends, then the current-frame marker on top
+  drawEnds(spx,w,h,n,true);
   const X=idx/(n-1)*w;
   spx.beginPath(); spx.moveTo(X,0); spx.lineTo(X,h);
   spx.strokeStyle="rgba(234,244,241,.95)"; spx.lineWidth=1.3; spx.stroke();
@@ -2207,6 +2234,7 @@ function drawMiniSpark(){
   miniCtx.beginPath();
   SERIES.forEach((v,i)=>{const X=i/(n-1)*w, Y=h-Math.sqrt(v/mx)*(h-2); i?miniCtx.lineTo(X,Y):miniCtx.moveTo(X,Y);});
   miniCtx.strokeStyle="rgba(127,216,196,.6)"; miniCtx.lineWidth=1; miniCtx.stroke();
+  drawEnds(miniCtx,w,h,n,false);
   const X=idx/(n-1)*w;                                     // current-frame marker
   miniCtx.strokeStyle="rgba(234,244,241,.95)"; miniCtx.lineWidth=1.3;
   miniCtx.beginPath(); miniCtx.moveTo(X,0); miniCtx.lineTo(X,h); miniCtx.stroke();
@@ -2216,7 +2244,9 @@ function updateMini(){
   const de=document.getElementById("tlmini-date"); if(de) de.textContent=s[0];
   const ph=document.getElementById("tlmini-phase");
   if(ph) ph.textContent = dayWhole ? "Whole day" : (PH_LABEL[pname]||"");
-  if(document.documentElement.classList.contains("tloff")) drawMiniSpark();
+  // refresh whichever spark is visible; the full one was blank after expanding
+  // the timeline (sized 0 while collapsed) until the scrubber moved
+  if(document.documentElement.classList.contains("tloff")) drawMiniSpark(); else drawSpark();
 }
 // scrub by clicking / dragging the mini-spark when the timeline is collapsed:
 // absolute mapping over the whole period (position -> frame), so the marker follows
@@ -2229,7 +2259,7 @@ function miniScrub(e){
   const target=Math.round(frac*(TIMES.length-1));
   if(target!==idx){ idx=target;
     const p=navList.indexOf(idx); if(p>=0) scrub.value=p;
-    grid=null; draw(); drawSpark(); redrawDetail(); }
+    grid=null; draw(); redrawDetail(); }
 }
 miniSp.addEventListener("pointerdown",e=>{ miniGrab=true;
   miniSp.setPointerCapture(e.pointerId); miniScrub(e); e.preventDefault(); });
@@ -2262,7 +2292,7 @@ let thHit=null;
     if(target!=null && target!==idx){
       idx=target;
       const p=navList.indexOf(idx); if(p>=0) scrub.value=p;
-      grid=null; draw(); drawSpark(); redrawDetail();
+      grid=null; draw(); redrawDetail();
     }
   });
 })();
@@ -2573,7 +2603,7 @@ document.getElementById("filt").addEventListener("click",e=>{
   filt=b.dataset.f;
   [...document.querySelectorAll("#filt button")].forEach(x=>
     x.setAttribute("aria-pressed", x===b?"true":"false"));
-  grid=null; rescale(); series(); legend(); draw(); drawSpark();
+  grid=null; rescale(); series(); legend(); draw();
   redrawDetail();
 });
 document.getElementById("ovltog").addEventListener("click",e=>{
@@ -2623,7 +2653,7 @@ document.getElementById("tltog").addEventListener("click",
     if(which==="tl"){                             // show the full timeline, pushed down out of view;
       const mini=tp.offsetHeight; html.classList.remove("tloff");   // out of the grid meanwhile, so the
       Object.assign(tp.style,{position:"absolute",left:0,right:0,bottom:0});   // rail keeps its height
-      pk.travel=tp.offsetHeight-mini;
+      pk.travel=tp.offsetHeight-mini; drawSpark();
     }
     el(which).style.transition="none"; step();
   }
@@ -2708,7 +2738,7 @@ document.getElementById("scale").addEventListener("click",e=>{
   scaleMode=b.dataset.s;
   [...document.querySelectorAll("#scale button")].forEach(x=>
     x.setAttribute("aria-pressed", x===b?"true":"false"));
-  grid=null; rescale(); series(); legend(); draw(); drawSpark();
+  grid=null; rescale(); series(); legend(); draw();
   redrawDetail();
 });
 const scrub=document.getElementById("scrub");
@@ -2737,26 +2767,26 @@ function setDayMode(on){
   rebuildNav();
   const ph=document.getElementById("phstrip"); if(ph) ph.style.display=on?"none":"";
   [...document.querySelectorAll("#daytog button")].forEach(b=>b.setAttribute("aria-pressed", String((b.dataset.d==="day")===on)));
-  grid=null; rescale(); series(); legend(); drawBase(); draw(); drawSpark();
+  grid=null; rescale(); series(); legend(); drawBase(); draw();
 }
 document.getElementById("daytog").addEventListener("click",e=>{
   const b=e.target.closest("button"); if(!b) return; setDayMode(b.dataset.d==="day");
 });
 rebuildNav();
 scrub.addEventListener("input",()=>{ idx=navList[+scrub.value] ?? idx; grid=null;
-  draw(); drawSpark(); redrawDetail(); });
+  draw(); redrawDetail(); });
 document.getElementById("phstrip").addEventListener("click",e=>{
   const s=e.target.closest("span"); if(!s||!s.dataset.p) return;
   const p=s.dataset.p; if(phaseSel.has(p)) phaseSel.delete(p); else phaseSel.add(p);
   [...document.querySelectorAll("#phstrip span")].forEach(el=>el.classList.toggle("sel", phaseSel.has(el.dataset.p)));
-  rebuildNav(); grid=null; draw(); drawSpark(); redrawDetail();
+  rebuildNav(); grid=null; draw(); redrawDetail();
 });
 document.getElementById("play").onclick=()=>{ playing=!playing;
   if(playing && navPos()>=navList.length-1){  // play from the end -> restart
-    gotoNav(0); grid=null; draw(); drawSpark(); redrawDetail(); }
+    gotoNav(0); grid=null; draw(); redrawDetail(); }
   else if(!playing) draw();                    // pausing: bring the shadow back if it was hidden in playback
   document.getElementById("play").textContent=playing?"\u275A\u275A":"\u25B6"; };
-const stepFrame=n=>{ gotoNav(navPos()+n); grid=null; draw(); drawSpark();
+const stepFrame=n=>{ gotoNav(navPos()+n); grid=null; draw();
   redrawDetail(); };
 document.getElementById("prevf").onclick=()=>stepFrame(-1);
 document.getElementById("nextf").onclick=()=>stepFrame(1);
@@ -2768,7 +2798,7 @@ document.addEventListener("keydown",e=>{
   else if(e.key==="-"||e.key==="_"){zoomAt(W/2,H/2,1/1.6);return;}
   else if(e.key==="0"){resetView();return;}
   else return;
-  grid=null; draw(); drawSpark(); redrawDetail();
+  grid=null; draw(); redrawDetail();
 });
 /* ---------- pan & zoom ---------- */
 let Z_MIN=1; const Z_MAX=24;
@@ -2971,7 +3001,7 @@ cvP.addEventListener("touchend",()=>{ touch=null; },{passive:true});
 document.getElementById("zin").onclick =()=>zoomAt(W/2,H/2,1.6);
 document.getElementById("zout").onclick=()=>zoomAt(W/2,H/2,1/1.6);
 document.getElementById("zfit").onclick=resetView;
-window.addEventListener("resize",()=>{resize();drawSpark();});
+window.addEventListener("resize",()=>{resize();});
 
 /* ---------- loop ---------- */
 let acc=0,last=performance.now();
@@ -2988,7 +3018,7 @@ function loop(now){
         draw();                               // restore the shadow if it was hidden in playback
       } else {
         gotoNav(navPos()+1); grid=null;
-        draw(); drawSpark(); redrawDetail();
+        draw(); redrawDetail();
       } } }
   requestAnimationFrame(loop);
 }
@@ -3001,7 +3031,7 @@ idx=TIMES.length-1;
 for(let i=TIMES.length-1;i>=0 && splitKey(TIMES[i])[0]===lastDate;i--)
   if(SERIES[i]>SERIES[idx]) idx=i;
 rebuildNav();
-resize(); legend(); drawSpark();
+resize(); legend();
 document.getElementById("play").textContent="\u25B6";
 requestAnimationFrame(loop);
 // debug/introspection handle (module scope isn't global)
