@@ -22,7 +22,7 @@ body{background:var(--ground);color:var(--ink);font-family:var(--f-sans);
 button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
-/* intro splash: shown once per app version (build.py stamps 556f5e17), and on
+/* intro splash: shown once per app version (build.py stamps 45643d35), and on
    demand from the ? button top-right / the ? key. Main points + a symbol key. */
 #splash{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;
   padding:24px;background:rgba(4,10,12,.74);backdrop-filter:blur(8px);animation:splashIn .3s ease}
@@ -328,7 +328,7 @@ document.documentElement.classList.add("railoff","tloff");
     <p class="splash-foot">Data: aloftdata.eu &middot; NOAA NEXRAD &middot; ECMWF &nbsp;&middot;&nbsp;
       Full guide: <i>How to read this map</i> in the left panel &nbsp;&middot;&nbsp;
       Reopen this screen with the <b>?</b> button (top-right) or the <kbd>?</kbd> key
-      &nbsp;&middot;&nbsp; build 556f5e17</p>
+      &nbsp;&middot;&nbsp; build 45643d35</p>
     <p class="splash-companion">Companion site: <a href="https://thebirding.site/" target="_blank" rel="noopener">BirdsWhere &mdash; thebirding.site</a>
       &mdash; a free, in-browser map of bird observations and distribution: where each species is
       recorded, when it occurs through the year, and live sightings, with field logging and offline maps.</p>
@@ -430,7 +430,7 @@ document.documentElement.classList.add("railoff","tloff");
 <script>
 (function(){
   var sp=document.getElementById("splash"); if(!sp) return;
-  var KEY="aloft_splash_seen", VER="556f5e17", openedBy=null;
+  var KEY="aloft_splash_seen", VER="45643d35", openedBy=null;
   var seen=false; try{ seen=localStorage.getItem(KEY)===VER; }catch(e){}
   if(!seen) sp.hidden=false;                    // first load of this app version -> show
   function open(by){ openedBy=by; sp.hidden=false; document.getElementById("splashgo").focus(); }
@@ -494,7 +494,8 @@ document.documentElement.classList.add("railoff","tloff");
         mode blends the same measurements into an animated field between radars
         &mdash; blank areas simply have no radar within range. Click any radar for
         its full profile: heading rose, flight altitudes, density and heading history,
-        and the sector breakdown (each block collapses with its heading) &mdash; <span style="color:#7FD8C4">teal US radars</span> included, on the
+        and the sector breakdown (each block collapses with its heading; the rose and
+        the sector table start folded) &mdash; <span style="color:#7FD8C4">teal US radars</span> included, on the
         same birds/km scale.</p>
 
       <p><b>Weather symbols.</b> Wind <b>barbs</b> use the meteorological
@@ -760,7 +761,7 @@ document.documentElement.classList.add("railoff","tloff");
         <a id="d-crow" href="#" target="_blank" rel="noopener">open in CROW &#8599;</a></div>
       <button id="close" aria-label="Close panel">&times;</button>
     </div>
-    <details class="dsec" open>
+    <details class="dsec">
       <summary>Heading rose</summary>
       <canvas id="rose"></canvas>
     </details>
@@ -772,7 +773,7 @@ document.documentElement.classList.add("railoff","tloff");
       <summary id="thheat-lbl">Density &amp; heading over the last weeks &middot; altitude &times; time</summary>
       <canvas id="thheat" style="cursor:pointer"></canvas>
     </details>
-    <details class="dsec" open>
+    <details class="dsec">
       <summary>Sectors</summary>
       <table>
         <thead><tr id="d-head"><th>Sector</th><th>MT</th><th>U</th><th>V</th><th>Share</th></tr></thead>

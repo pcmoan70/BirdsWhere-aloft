@@ -38,7 +38,8 @@ a 1 km line during the phase; most migration is nocturnal.
 - **Click a radar** for its full profile: heading rose, traffic by altitude,
   density & heading over the last 7 days, and the compass-sector table (with a
   link out to the aloft/CROW profile). Each block collapses with its heading
-  and stays that way while you scrub or pick other radars.
+  and stays that way while you scrub or pick other radars; the heading rose and
+  the sector table start folded, the two graphs start open.
   **US teal radars** open their own panel too — a compass with the mean heading,
   band density (birds/km³), and the day's phase-by-phase values.
 
