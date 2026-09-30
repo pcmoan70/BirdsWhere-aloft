@@ -22,7 +22,7 @@ body{background:var(--ground);color:var(--ink);font-family:var(--f-sans);
 button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
-/* intro splash: shown once per app version (build.py stamps 45643d35), and on
+/* intro splash: shown once per app version (build.py stamps a2d5bb70), and on
    demand from the ? button top-right / the ? key. Main points + a symbol key. */
 #splash{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;
   padding:24px;background:rgba(4,10,12,.74);backdrop-filter:blur(8px);animation:splashIn .3s ease}
@@ -328,7 +328,7 @@ document.documentElement.classList.add("railoff","tloff");
     <p class="splash-foot">Data: aloftdata.eu &middot; NOAA NEXRAD &middot; ECMWF &nbsp;&middot;&nbsp;
       Full guide: <i>How to read this map</i> in the left panel &nbsp;&middot;&nbsp;
       Reopen this screen with the <b>?</b> button (top-right) or the <kbd>?</kbd> key
-      &nbsp;&middot;&nbsp; build 45643d35</p>
+      &nbsp;&middot;&nbsp; build a2d5bb70</p>
     <p class="splash-companion">Companion site: <a href="https://thebirding.site/" target="_blank" rel="noopener">BirdsWhere &mdash; thebirding.site</a>
       &mdash; a free, in-browser map of bird observations and distribution: where each species is
       recorded, when it occurs through the year, and live sightings, with field logging and offline maps.</p>
@@ -430,7 +430,7 @@ document.documentElement.classList.add("railoff","tloff");
 <script>
 (function(){
   var sp=document.getElementById("splash"); if(!sp) return;
-  var KEY="aloft_splash_seen", VER="45643d35", openedBy=null;
+  var KEY="aloft_splash_seen", VER="a2d5bb70", openedBy=null;
   var seen=false; try{ seen=localStorage.getItem(KEY)===VER; }catch(e){}
   if(!seen) sp.hidden=false;                    // first load of this app version -> show
   function open(by){ openedBy=by; sp.hidden=false; document.getElementById("splashgo").focus(); }
@@ -2434,14 +2434,18 @@ function drawHProfile(rec){
   const ok = dOnly ? hasVH : hasHeight;
   const H=[]; let peak=0;
   if(ok && rec) for(let i=0;i<NH;i++){ const v=(rec[base+i]||0)*(dOnly?scale:1); H.push(v); if(v>peak)peak=v; }
-  if(!ok || !rec || peak<=0){ lbl.parentElement.style.display="none"; thHit=null; return; }
   lbl.textContent = densMode ? "Density by altitude"
                   : estTraffic ? "Traffic by altitude (est.)"
                   : "Traffic by altitude";
-  lbl.parentElement.style.display="";
+  lbl.parentElement.style.display="";           // the section stays; an empty frame says so
   const d=Math.min(2,devicePixelRatio||1), w=rc.clientWidth, hgt=150;
   rc.width=w*d; rc.height=hgt*d; const g=rc.getContext("2d"); g.setTransform(d,0,0,d,0,0);
   g.clearRect(0,0,w,hgt);
+  if(!ok || !rec || peak<=0){
+    g.fillStyle="#7C8AA3"; g.font="12px "+getComputedStyle(document.body).fontFamily;
+    g.textAlign="center"; g.textBaseline="middle";
+    g.fillText(ok ? "no data" : "no altitude data", w/2, hgt/2); return;
+  }
   const padL=30, padR=10, padT=6, padB=16, plotW=w-padL-padR, plotH=hgt-padT-padB, bh=plotH/NH;
   const ff=getComputedStyle(document.body).fontFamily;
   g.font="8.5px "+ff; g.textBaseline="middle";
