@@ -106,6 +106,9 @@ a 1 km line during the phase; most migration is nocturnal.
   then on demand from the `?` button top-right or the `?` key.
 - **Flight altitude** legend for the current frame.
 - **Open on your phone** — a QR code (with the URL) in settings.
+- **Deep link to a radar:** `?radar=ID` (case-insensitive, e.g.
+  `https://pcmoan70.github.io/BirdsWhere-aloft/?radar=norst` for Røst, `?radar=KOKX`
+  for New York) opens that radar's panel on load.
 - **Controls:** drag to pan; wheel or double-click to zoom; `+` / `−` / `0` zoom and
   reset; `←` / `→` step phases; `space` plays. Side and bottom panels collapse.
 - **Edge peek (mouse):** touching the left or bottom edge of the window slides the

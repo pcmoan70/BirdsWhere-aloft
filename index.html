@@ -22,7 +22,7 @@ body{background:var(--ground);color:var(--ink);font-family:var(--f-sans);
 button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
-/* intro splash: shown once per app version (build.py stamps 8ccfa11f), and on
+/* intro splash: shown once per app version (build.py stamps 556f5e17), and on
    demand from the ? button top-right / the ? key. Main points + a symbol key. */
 #splash{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;
   padding:24px;background:rgba(4,10,12,.74);backdrop-filter:blur(8px);animation:splashIn .3s ease}
@@ -328,7 +328,7 @@ document.documentElement.classList.add("railoff","tloff");
     <p class="splash-foot">Data: aloftdata.eu &middot; NOAA NEXRAD &middot; ECMWF &nbsp;&middot;&nbsp;
       Full guide: <i>How to read this map</i> in the left panel &nbsp;&middot;&nbsp;
       Reopen this screen with the <b>?</b> button (top-right) or the <kbd>?</kbd> key
-      &nbsp;&middot;&nbsp; build 8ccfa11f</p>
+      &nbsp;&middot;&nbsp; build 556f5e17</p>
     <p class="splash-companion">Companion site: <a href="https://thebirding.site/" target="_blank" rel="noopener">BirdsWhere &mdash; thebirding.site</a>
       &mdash; a free, in-browser map of bird observations and distribution: where each species is
       recorded, when it occurs through the year, and live sightings, with field logging and offline maps.</p>
@@ -430,7 +430,7 @@ document.documentElement.classList.add("railoff","tloff");
 <script>
 (function(){
   var sp=document.getElementById("splash"); if(!sp) return;
-  var KEY="aloft_splash_seen", VER="8ccfa11f", openedBy=null;
+  var KEY="aloft_splash_seen", VER="556f5e17", openedBy=null;
   var seen=false; try{ seen=localStorage.getItem(KEY)===VER; }catch(e){}
   if(!seen) sp.hidden=false;                    // first load of this app version -> show
   function open(by){ openedBy=by; sp.hidden=false; document.getElementById("splashgo").focus(); }
@@ -535,6 +535,8 @@ document.documentElement.classList.add("railoff","tloff");
         <kbd>+</kbd>/<kbd>&minus;</kbd>/<kbd>0</kbd> zoom and reset,
         <kbd>&larr;</kbd>/<kbd>&rarr;</kbd> step phases, <kbd>space</kbd> plays,
         <kbd>?</kbd> (or the button top-right) reopens the intro with the symbol key.
+        Add <code>?radar=ID</code> to the address (e.g. <code>?radar=norst</code>) to open
+        a radar&rsquo;s panel on load.
         The phase strip under the date filters which phases the scrubber visits. Dashed
         lines on the traffic graph mark where each source&rsquo;s data ends:
         <span style="color:#E8A33D">European radar</span>, <span style="color:#7FD8C4">US radar</span>
@@ -3032,6 +3034,14 @@ for(let i=TIMES.length-1;i>=0 && splitKey(TIMES[i])[0]===lastDate;i--)
   if(SERIES[i]>SERIES[idx]) idx=i;
 rebuildNav();
 resize(); legend();
+// ?radar=ID opens that radar's panel on load (case-insensitive: norst, KOKX); the
+// default view already frames every radar, so no pan is needed
+(function(){
+  const q=new URLSearchParams(location.search).get("radar"); if(!q) return;
+  const ri=RAD.findIndex(r=>r && r.id.toLowerCase()===q.trim().toLowerCase());
+  if(ri<0){ console.warn("?radar="+q+": no such radar"); return; }
+  openDetail(ri);
+})();
 document.getElementById("play").textContent="\u25B6";
 requestAnimationFrame(loop);
 // debug/introspection handle (module scope isn't global)
