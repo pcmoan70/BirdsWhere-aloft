@@ -22,7 +22,7 @@ body{background:var(--ground);color:var(--ink);font-family:var(--f-sans);
 button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
-/* intro splash: shown once per app version (build.py stamps a2d5bb70), and on
+/* intro splash: shown once per app version (build.py stamps 99ad15a4), and on
    demand from the ? button top-right / the ? key. Main points + a symbol key. */
 #splash{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;
   padding:24px;background:rgba(4,10,12,.74);backdrop-filter:blur(8px);animation:splashIn .3s ease}
@@ -328,7 +328,7 @@ document.documentElement.classList.add("railoff","tloff");
     <p class="splash-foot">Data: aloftdata.eu &middot; NOAA NEXRAD &middot; ECMWF &nbsp;&middot;&nbsp;
       Full guide: <i>How to read this map</i> in the left panel &nbsp;&middot;&nbsp;
       Reopen this screen with the <b>?</b> button (top-right) or the <kbd>?</kbd> key
-      &nbsp;&middot;&nbsp; build a2d5bb70</p>
+      &nbsp;&middot;&nbsp; build 99ad15a4</p>
     <p class="splash-companion">Companion site: <a href="https://thebirding.site/" target="_blank" rel="noopener">BirdsWhere &mdash; thebirding.site</a>
       &mdash; a free, in-browser map of bird observations and distribution: where each species is
       recorded, when it occurs through the year, and live sightings, with field logging and offline maps.</p>
@@ -430,7 +430,7 @@ document.documentElement.classList.add("railoff","tloff");
 <script>
 (function(){
   var sp=document.getElementById("splash"); if(!sp) return;
-  var KEY="aloft_splash_seen", VER="a2d5bb70", openedBy=null;
+  var KEY="aloft_splash_seen", VER="99ad15a4", openedBy=null;
   var seen=false; try{ seen=localStorage.getItem(KEY)===VER; }catch(e){}
   if(!seen) sp.hidden=false;                    // first load of this app version -> show
   function open(by){ openedBy=by; sp.hidden=false; document.getElementById("splashgo").focus(); }
@@ -500,9 +500,9 @@ document.documentElement.classList.add("railoff","tloff");
 
       <p><b>Weather symbols.</b> Wind <b>barbs</b> use the meteorological
         convention &mdash; half feather 5&nbsp;kt, full 10&nbsp;kt, pennant
-        50&nbsp;kt &mdash; pointing the way the wind blows FROM; shown where the
-        migration band (strongest of ~800&ndash;1500&nbsp;m) reaches 5&nbsp;m/s,
-        or at the surface via the toggle. <b>Grey wiggly-edged regions</b> are the
+        50&nbsp;kt &mdash; pointing the way the wind blows FROM; drawn wherever the
+        migration band (strongest of ~800&ndash;1500&nbsp;m) has data, light winds
+        included (a small circle is calm), or at the surface via the toggle. <b>Grey wiggly-edged regions</b> are the
         leading edge of precipitation &mdash; a barrier birds will not cross;
         <b>blue hatched regions</b> mark freezing ground (a frost triggers
         departures). The wide weather domain (America to the Urals) is there so
@@ -611,7 +611,7 @@ document.documentElement.classList.add("railoff","tloff");
       <label class="wxchk"><input type="checkbox" id="wxptcl" checked> Show &mdash; click &middot; right-click to seed</label>
       <label class="wxchk"><input type="checkbox" id="wxptceu"> European departure line <span style="color:#FFB05C">(amber)</span></label>
       <button type="button" id="ptclear" class="ptclear">Clear swarms</button>
-      <p class="note">The 0.25&deg; ECMWF weather, reduced to what matters for migration: <b>wind</b> barbs in the migration band &mdash; the strongest of the 925/850&nbsp;hPa levels (~800&ndash;1500&nbsp;m), shown from 5&nbsp;m/s &mdash; or at the surface (10&nbsp;m), toggle above; the leading edge of <b>precipitation</b> (a barrier birds won't cross), and where the <b>ground is freezing</b> (&le;0&nbsp;&deg;C &mdash; blue hatched regions, distinct from grey precipitation; a frost triggers departures). <b>Particle traces</b>: click the map to release a <span style="color:#A855F7">purple</span>, persistent swarm (no lifetime) that rides the migration-band wind in lockstep with the timeline: step, scrub or play the dates to advect them (one phase &asymp; 3.4&nbsp;h of transport; a still timeline is a still picture). Right-click seeds a line of tracers along the American Atlantic coast, Miami to northern Labrador &mdash; the Nearctic departure line (<span style="color:#7FD8C4">teal</span>). Enable <b>European departure line</b> above and the same right-click also seeds the Atlantic-facing European seaboard, North Cape to Morocco, in <span style="color:#FFB05C">amber</span> (zoom out to watch). <b>Night shadow</b> shades the sunlit day side warm and the night side dark for each date/phase &mdash; because the map spans an ocean, a "night" phase falls at very different clock times in America and Europe, and the terminator makes that offset visible. <b>US east-coast radars (NEXRAD)</b> adds the American seaboard radars in <span style="color:#7FD8C4">teal</span> (matching the Nearctic tracers). They are processed the same way as Europe &mdash; the vol2bird radar equation into bird density and migration traffic (<b>birds/km</b>) &mdash; so a teal arrow reads on the same scale as a European one, and clicking one opens the same full profile (rose, flight altitudes, density &amp; heading history). Binned on each radar's own local night. <b>Radar-driven release</b> (on by default) makes the radars seed tracers along the American <b>shoreline</b> automatically as the timeline advances (no right-click needed): each radar releases about <b>one tracer per 250 birds</b> of its measured traffic, spread along its shoreline &mdash; daytime detections (mostly insects and local movement) release at a quarter of that &mdash; and each tracer draws its own <b>size</b> from the radar-night's spread of flight speeds (radar airspeed &mdash; ground speed minus wind &mdash; stands in for size, which sets endurance: a small passerine a few days, a wader up to two weeks), so one release carries a mix of guilds. The released tracers are drawn <span style="color:#7FD8C4">teal</span> to match the US layer. The same automatic release is available for the <b>European aloft radars</b>: enable <b>Radar-driven release</b> under <i>European radars</i> and the Atlantic-facing seaboard (North Cape to Morocco) seeds <span style="color:#FFB05C">amber</span> tracers each phase, one per 250 birds/km of each radar's traffic. Both radar releases run <b>independently of the <i>Show</i> traces toggle</b> &mdash; turn traces off and the radar swarms keep flowing (clearing only when every release is off).</p>
+      <p class="note">The 0.25&deg; ECMWF weather, reduced to what matters for migration: <b>wind</b> barbs in the migration band &mdash; the strongest of the 925/850&nbsp;hPa levels (~800&ndash;1500&nbsp;m), drawn wherever there is data, light winds faint &mdash; or at the surface (10&nbsp;m), toggle above; the leading edge of <b>precipitation</b> (a barrier birds won't cross), and where the <b>ground is freezing</b> (&le;0&nbsp;&deg;C &mdash; blue hatched regions, distinct from grey precipitation; a frost triggers departures). <b>Particle traces</b>: click the map to release a <span style="color:#A855F7">purple</span>, persistent swarm (no lifetime) that rides the migration-band wind in lockstep with the timeline: step, scrub or play the dates to advect them (one phase &asymp; 3.4&nbsp;h of transport; a still timeline is a still picture). Right-click seeds a line of tracers along the American Atlantic coast, Miami to northern Labrador &mdash; the Nearctic departure line (<span style="color:#7FD8C4">teal</span>). Enable <b>European departure line</b> above and the same right-click also seeds the Atlantic-facing European seaboard, North Cape to Morocco, in <span style="color:#FFB05C">amber</span> (zoom out to watch). <b>Night shadow</b> shades the sunlit day side warm and the night side dark for each date/phase &mdash; because the map spans an ocean, a "night" phase falls at very different clock times in America and Europe, and the terminator makes that offset visible. <b>US east-coast radars (NEXRAD)</b> adds the American seaboard radars in <span style="color:#7FD8C4">teal</span> (matching the Nearctic tracers). They are processed the same way as Europe &mdash; the vol2bird radar equation into bird density and migration traffic (<b>birds/km</b>) &mdash; so a teal arrow reads on the same scale as a European one, and clicking one opens the same full profile (rose, flight altitudes, density &amp; heading history). Binned on each radar's own local night. <b>Radar-driven release</b> (on by default) makes the radars seed tracers along the American <b>shoreline</b> automatically as the timeline advances (no right-click needed): each radar releases about <b>one tracer per 250 birds</b> of its measured traffic, spread along its shoreline &mdash; daytime detections (mostly insects and local movement) release at a quarter of that &mdash; and each tracer draws its own <b>size</b> from the radar-night's spread of flight speeds (radar airspeed &mdash; ground speed minus wind &mdash; stands in for size, which sets endurance: a small passerine a few days, a wader up to two weeks), so one release carries a mix of guilds. The released tracers are drawn <span style="color:#7FD8C4">teal</span> to match the US layer. The same automatic release is available for the <b>European aloft radars</b>: enable <b>Radar-driven release</b> under <i>European radars</i> and the Atlantic-facing seaboard (North Cape to Morocco) seeds <span style="color:#FFB05C">amber</span> tracers each phase, one per 250 birds/km of each radar's traffic. Both radar releases run <b>independently of the <i>Show</i> traces toggle</b> &mdash; turn traces off and the radar swarms keep flowing (clearing only when every release is off).</p>
     </div>
 
     <div class="grp" id="routesgrp">
@@ -1900,7 +1900,10 @@ function drawWx(){
     if(fr.length) drawFrost(ctxWx, fr);
   }
   if(wxPrecip && wf.front && wf.front.length) drawFronts(ctxWx, wf.front);
-  const barbs = (wxLevel==="sfc" && wf.wind_sfc) ? wf.wind_sfc : wf.wind;
+  // Band barbs come from the full wind grid (every cell with data, light winds
+  // included) -- same 1.5 deg positions the sampled `wind` list used, so older
+  // tiles gain their light-wind barbs too; `wind` is only the fallback.
+  const barbs = (wxLevel==="sfc" && wf.wind_sfc) ? wf.wind_sfc : (wf.wgrid ? gridBarbs(wf.wgrid) : wf.wind);
   if(wxWind && barbs){
     // Barbs sit on a fixed ~1.5 deg geographic grid. To avoid pile-ups when zoomed
     // out, keep only every 2^n-th grid point -- a FIXED, nested subset, chosen so the
@@ -1969,8 +1972,15 @@ function drawFronts(g, rings){
 // Feathers go on the side 90 deg counterclockwise from the downwind direction,
 // which is the northern-hemisphere convention (they point toward low pressure).
 // The whole map is north of the equator, so that side is fixed.
+function gridBarbs(g){                          // wgrid -> [lon,lat,u,v] for every cell with data
+  if(g._barbs) return g._barbs;
+  const out=[];
+  for(let j=0;j<g.ny;j++) for(let i=0;i<g.nx;i++){ const k=j*g.nx+i, u=g.u[k];
+    if(u!=null) out.push([g.lon0+g.dlon*i, g.lat0+g.dlat*j, u/10, g.v[k]/10]); }
+  return (g._barbs=out);
+}
 function windBarb(g,x,y,u,v){
-  const spd=Math.hypot(u,v), col="rgba(150,214,199,.34)";
+  const spd=Math.hypot(u,v), col="rgba(150,214,199,.25)";
   g.strokeStyle=col; g.fillStyle=col; g.lineWidth=0.9; g.lineCap="butt"; g.lineJoin="round";
   let kt=Math.round(spd*1.94384/5)*5;              // knots, to the nearest 5 (NWS)
   if(kt<=0){ g.beginPath(); g.arc(x,y,2.6,0,7); g.stroke(); return; }   // calm

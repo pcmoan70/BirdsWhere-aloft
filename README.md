@@ -53,7 +53,8 @@ a 1 km line during the phase; most migration is nocturnal.
 ### Weather features (0.25° ECMWF)
 - **Wind barbs** — meteorological convention (half feather 5 kt, full 10 kt,
   pennant 50 kt), for the **migration band** (strongest of 925/850 hPa, ~800–1500 m,
-  from 5 m/s) or the **surface** (10 m), toggleable.
+  drawn wherever there is data, calm as a small circle) or the **surface**
+  (10 m), toggleable; the whole barb layer is faint (alpha 0.25).
 - **Precipitation front** — grey wiggly-edged regions birds won't cross.
 - **Ground frost** — blue hatched regions (≤0 °C skin temp); a frost triggers
   departures.
