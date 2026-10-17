@@ -22,7 +22,8 @@ a 1 km line during the phase; most migration is nocturnal.
 - **Phase strip** under the date filters which phases the scrubber visits (e.g.
   nights only).
 - **Day / phase mode** toggles between per-phase frames and one aggregated frame
-  per whole day.
+  per whole day; the whole-day weather is the day's phase fields averaged
+  (weighted by phase length), with frost / precipitation as the union over the day.
 
 ### Representation
 - **Vector** — each radar draws per-sector arrows; length, thickness and warm

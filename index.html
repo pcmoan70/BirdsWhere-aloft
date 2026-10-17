@@ -22,7 +22,7 @@ body{background:var(--ground);color:var(--ink);font-family:var(--f-sans);
 button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
-/* intro splash: shown once per app version (build.py stamps 99ad15a4), and on
+/* intro splash: shown once per app version (build.py stamps 6bbbc82a), and on
    demand from the ? button top-right / the ? key. Main points + a symbol key. */
 #splash{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;
   padding:24px;background:rgba(4,10,12,.74);backdrop-filter:blur(8px);animation:splashIn .3s ease}
@@ -328,7 +328,7 @@ document.documentElement.classList.add("railoff","tloff");
     <p class="splash-foot">Data: aloftdata.eu &middot; NOAA NEXRAD &middot; ECMWF &nbsp;&middot;&nbsp;
       Full guide: <i>How to read this map</i> in the left panel &nbsp;&middot;&nbsp;
       Reopen this screen with the <b>?</b> button (top-right) or the <kbd>?</kbd> key
-      &nbsp;&middot;&nbsp; build 99ad15a4</p>
+      &nbsp;&middot;&nbsp; build 6bbbc82a</p>
     <p class="splash-companion">Companion site: <a href="https://thebirding.site/" target="_blank" rel="noopener">BirdsWhere &mdash; thebirding.site</a>
       &mdash; a free, in-browser map of bird observations and distribution: where each species is
       recorded, when it occurs through the year, and live sightings, with field logging and offline maps.</p>
@@ -393,7 +393,10 @@ document.documentElement.classList.add("railoff","tloff");
         925 and 850&nbsp;hPa (about 800 and 1500&nbsp;m); per cell the stronger of the two is taken
         as the migration-band wind (the same rule as the barbs). It is subsampled to 1.5&deg; over
         84&deg;W&ndash;40&deg;E, 15&ndash;82&deg;N, and for each date and solar phase the 3-hourly
-        steps falling in that phase are averaged into one frozen field. Days backfilled from
+        steps falling in that phase are averaged into one frozen field. In <b>Whole day</b> mode the
+        field is the day&rsquo;s phase fields averaged cell by cell, weighted by nominal phase length
+        (day ~10&nbsp;h, a night third ~3&nbsp;h, dusk / dawn ~2&nbsp;h); frost and precipitation
+        regions are then the union over the day. Days backfilled from
         ERA5 carry 925&nbsp;hPa only.</p>
       <p><b>Integration.</b> Tracers move only when the timeline steps forward. Each step covers
         the frame&rsquo;s real phase length (the median of the reporting radars&rsquo; phase hours,
@@ -430,7 +433,7 @@ document.documentElement.classList.add("railoff","tloff");
 <script>
 (function(){
   var sp=document.getElementById("splash"); if(!sp) return;
-  var KEY="aloft_splash_seen", VER="99ad15a4", openedBy=null;
+  var KEY="aloft_splash_seen", VER="6bbbc82a", openedBy=null;
   var seen=false; try{ seen=localStorage.getItem(KEY)===VER; }catch(e){}
   if(!seen) sp.hidden=false;                    // first load of this app version -> show
   function open(by){ openedBy=by; sp.hidden=false; document.getElementById("splashgo").focus(); }
@@ -797,22 +800,55 @@ const WX_HAS = !!(WX && WX.frames && WX.frames.length);
 let wxWind = true, wxPrecip = true, wxTemp = true;   // bird-weather feature layers
 let wxLevel = "925";   // wind shown: "925" = migration band (925/850 hPa max) or "sfc" (10 m)
 // current migration phase -> weather day/night (migration is nocturnal; dusk/dawn/night -> night)
-function wxPhaseName(i){ return PHASES[splitKey(TIMES[i])[1]] || ""; }   // weather now binned to the SAME solar phases
+function wxPhaseName(i){ const k=TIMES[i].split("|")[1]; return k==="D" ? "D" : (PHASES[+k] || ""); }   // weather now binned to the SAME solar phases; "D" = whole day
 const wxIndex = (function(){ var m={}; if(WX_HAS) WX.frames.forEach(function(f,k){ m[f.date+"|"+f.phase]=k; }); return m; })();
+// Whole-day frame per date (timeline in "Whole day" mode), composed from that
+// date's phase frames: the band wind grid and the surface barbs are averaged
+// cell by cell with nominal phase lengths as weights (day ~10 h, a night third
+// ~3 h, dusk / dawn ~2 h; polar cells have only their polar phase), frost and
+// precip regions are the union of the phases' -- "any time that day".
+const WX_DAY = (function(){
+  const HRS={day:10, dusk:2, night_1:3, night_2:3, night_3:3, dawn:2, polar_day:24, polar_night:24};
+  const byDate={}; if(WX_HAS) for(const f of WX.frames) (byDate[f.date]||(byDate[f.date]=[])).push(f);
+  const out={};
+  for(const d in byDate){
+    let g=null, su=null, sv=null, sn=null; const sfc={}, frost=[], front=[];
+    for(const f of byDate[d]){
+      const w=HRS[f.phase]||1;
+      if(f.frost) frost.push(...f.frost);
+      if(f.front) front.push(...f.front);
+      const q=f.wgrid;
+      if(q){
+        if(!g){ g=q; su=new Float64Array(q.u.length); sv=new Float64Array(q.u.length); sn=new Float64Array(q.u.length); }
+        if(q.nx===g.nx && q.ny===g.ny) for(let i=0;i<q.u.length;i++) if(q.u[i]!=null){ su[i]+=w*q.u[i]; sv[i]+=w*q.v[i]; sn[i]+=w; }
+      }
+      if(f.wind_sfc) for(const [lo,la,u,v] of f.wind_sfc){
+        const a=sfc[lo+","+la]||(sfc[lo+","+la]={lo,la,u:0,v:0,n:0}); a.u+=w*u; a.v+=w*v; a.n+=w; }
+    }
+    const fr={date:d, phase:"D", frost, front,
+              wind_sfc:Object.values(sfc).map(a=>[a.lo,a.la,Math.round(10*a.u/a.n)/10,Math.round(10*a.v/a.n)/10])};
+    if(g){ const u=new Array(sn.length), v=new Array(sn.length);
+      for(let i=0;i<sn.length;i++){ u[i]=sn[i]?Math.round(su[i]/sn[i]):null; v[i]=sn[i]?Math.round(sv[i]/sn[i]):null; }
+      fr.wgrid={nx:g.nx, ny:g.ny, lon0:g.lon0, lat0:g.lat0, dlon:g.dlon, dlat:g.dlat, unit:g.unit, level:g.level, u, v}; }
+    out[d]=fr;
+  }
+  return out;
+})();
+// The weather frame for a date + phase name ("D" = the composed whole day), or null.
+function wxAt(d,ph){ if(ph==="D") return WX_DAY[d]||null; const k=wxIndex[d+"|"+ph]; return k==null?null:WX.frames[k]; }
 // Exact date + phase, or nothing. The migration window spans months while ECMWF
 // Open Data only reaches back a few days, so most dates have no weather at all.
 // Borrowing another date's frame to fill the gap would draw wind barbs and fronts
 // that were never measured there -- and weather is exactly what a departure gets
 // read against, so a plausible-looking stand-in is worse than a blank map.
 function wxFrame(){ if(!WX_HAS) return null;
-  const d=splitKey(TIMES[idx])[0], k=wxIndex[d+"|"+wxPhaseName(idx)];
-  return (k==null)?null:WX.frames[k]; }
+  return wxAt(splitKey(TIMES[idx])[0], wxPhaseName(idx)); }
 // The date whose real weather is missing (no exact tile) while any weather layer is
 // on -- shown in red under the stamp; null when this date has its own weather.
 function wxMissingDate(){
   if(!WX_HAS || !(wxWind||wxPrecip||wxTemp)) return null;
   var d=splitKey(TIMES[idx])[0];
-  return wxIndex[d+"|"+wxPhaseName(idx)]==null ? d : null;
+  return wxAt(d, wxPhaseName(idx))==null ? d : null;
 }
 const SEC   = DATA.meta.sectors;                 // N NE E SE S SW W NW
 const NS    = SEC.length;
@@ -1779,8 +1815,8 @@ function ptSeedRadarEU(i=idx){
 // positions (no reverse advection).
 function ptWgridAt(i){
   if(!WX_HAS) return null;
-  const d=splitKey(TIMES[i])[0], k=wxIndex[d+"|"+wxPhaseName(i)];
-  return (k==null)?null:(WX.frames[k].wgrid||null);
+  const f=wxAt(splitKey(TIMES[i])[0], wxPhaseName(i));
+  return f?(f.wgrid||null):null;
 }
 function ptPhaseHours(i){
   // REAL phase length, not 24/nPhases: an August Day runs ~12.5 h against
@@ -1892,7 +1928,7 @@ function drawWx(){
   // complementary to the normal phases, so merging is double-count-free.
   if(wxTemp){
     let fr = (wf.frost||[]);
-    for(const ph of ["polar_day","polar_night"]){
+    if(wf.phase!=="D") for(const ph of ["polar_day","polar_night"]){
       const k=wxIndex[wf.date+"|"+ph];
       if(k!=null && WX.frames[k]!==wf && WX.frames[k].frost)
         fr = fr.concat(WX.frames[k].frost);
@@ -2123,7 +2159,7 @@ function updateDataStatus(){
   let eu=false, us=false;
   for(const r of frame()){ const R=RAD[r[I_RI]]; if(!R) continue;
     if(R.us) us=true; else eu=true; }
-  const hasWx = WX_HAS && wxIndex[splitKey(TIMES[idx])[0]+"|"+wxPhaseName(idx)]!=null;
+  const hasWx = WX_HAS && wxAt(splitKey(TIMES[idx])[0], wxPhaseName(idx))!=null;
   const miss=[];
   if(!eu) miss.push("European radar");
   if(!us) miss.push("US radar");
@@ -2880,7 +2916,7 @@ function pointInRings(lon,lat,rings){             // even-odd ray cast (holes ha
 function frostRingsNow(){                          // current frame's frost rings (+ polar merge, as drawn)
   const wf=wxFrame(); if(!wf) return [];
   let fr=(wf.frost||[]);
-  for(const ph of ["polar_day","polar_night"]){ const k=wxIndex[wf.date+"|"+ph];
+  if(wf.phase!=="D") for(const ph of ["polar_day","polar_night"]){ const k=wxIndex[wf.date+"|"+ph];
     if(k!=null && WX.frames[k]!==wf && WX.frames[k].frost) fr=fr.concat(WX.frames[k].frost); }
   return fr;
 }
