@@ -23,7 +23,9 @@ a 1 km line during the phase; most migration is nocturnal.
   nights only).
 - **Day / phase mode** toggles between per-phase frames and one aggregated frame
   per whole day; the whole-day weather is the day's phase fields averaged
-  (weighted by phase length), with frost / precipitation as the union over the day.
+  (weighted by phase length), with frost / precipitation as the union over the
+  day. Particle traces in whole-day mode step through the date's phases
+  internally and show the end-of-day positions as dots.
 
 ### Representation
 - **Vector** — each radar draws per-sector arrows; length, thickness and warm
