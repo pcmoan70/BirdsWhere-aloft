@@ -22,7 +22,7 @@ body{background:var(--ground);color:var(--ink);font-family:var(--f-sans);
 button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
-/* intro splash: shown once per app version (build.py stamps a2eb95bb), and on
+/* intro splash: shown once per app version (build.py stamps ac1c49a0), and on
    demand from the ? button top-right / the ? key. Main points + a symbol key. */
 #splash{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;
   padding:24px;background:rgba(4,10,12,.74);backdrop-filter:blur(8px);animation:splashIn .3s ease}
@@ -130,6 +130,7 @@ html.railoff{--rail:0px}
 .bw-back:hover{color:var(--ink)}
 .brand h1{margin:0;font-size:19px;font-weight:600;letter-spacing:-.02em}
 .brand p{margin:0;font-size:11.5px;color:var(--muted);line-height:1.45}
+.brand p.lic{font-size:10.5px}.brand p.lic a{color:inherit}
 .grp{display:flex;flex-direction:column;gap:9px}
 .lbl{font-family:var(--f-mono);font-size:10px;font-weight:500;letter-spacing:.13em;
   text-transform:uppercase;color:var(--muted)}
@@ -328,7 +329,7 @@ document.documentElement.classList.add("railoff","tloff");
     <p class="splash-foot">Data: aloftdata.eu &middot; NOAA NEXRAD &middot; ECMWF &nbsp;&middot;&nbsp;
       Full guide: <i>How to read this map</i> in the left panel &nbsp;&middot;&nbsp;
       Reopen this screen with the <b>?</b> button (top-right) or the <kbd>?</kbd> key
-      &nbsp;&middot;&nbsp; build a2eb95bb</p>
+      &nbsp;&middot;&nbsp; build ac1c49a0</p>
     <p class="splash-companion">Companion site: <a href="https://thebirding.site/" target="_blank" rel="noopener">BirdsWhere &mdash; thebirding.site</a>
       &mdash; a free, in-browser map of bird observations and distribution: where each species is
       recorded, when it occurs through the year, and live sightings, with field logging and offline maps.</p>
@@ -442,7 +443,7 @@ document.documentElement.classList.add("railoff","tloff");
 <script>
 (function(){
   var sp=document.getElementById("splash"); if(!sp) return;
-  var KEY="aloft_splash_seen", VER="a2eb95bb", openedBy=null;
+  var KEY="aloft_splash_seen", VER="ac1c49a0", openedBy=null;
   var seen=false; try{ seen=localStorage.getItem(KEY)===VER; }catch(e){}
   if(!seen) sp.hidden=false;                    // first load of this app version -> show
   function open(by){ openedBy=by; sp.hidden=false; document.getElementById("splashgo").focus(); }
@@ -483,6 +484,7 @@ document.documentElement.classList.add("railoff","tloff");
       <h1>Birds Aloft</h1>
       <p>European bird migration from weather radar &mdash;
          binned by sunrise and sunset</p>
+      <p class="lic">Open source under the <a href="https://github.com/pcmoan70/BirdsWhere-aloft/blob/main/LICENSE" target="_blank" rel="noopener">MIT licence</a> &mdash; data credits under <i>Credits &amp; licence</i></p>
     </div>
 
     <details class="cred" id="howto">
