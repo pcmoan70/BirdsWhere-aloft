@@ -22,7 +22,7 @@ body{background:var(--ground);color:var(--ink);font-family:var(--f-sans);
 button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
-/* intro splash: shown once per app version (build.py stamps 81642f36), and on
+/* intro splash: shown once per app version (build.py stamps a2eb95bb), and on
    demand from the ? button top-right / the ? key. Main points + a symbol key. */
 #splash{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;
   padding:24px;background:rgba(4,10,12,.74);backdrop-filter:blur(8px);animation:splashIn .3s ease}
@@ -328,7 +328,7 @@ document.documentElement.classList.add("railoff","tloff");
     <p class="splash-foot">Data: aloftdata.eu &middot; NOAA NEXRAD &middot; ECMWF &nbsp;&middot;&nbsp;
       Full guide: <i>How to read this map</i> in the left panel &nbsp;&middot;&nbsp;
       Reopen this screen with the <b>?</b> button (top-right) or the <kbd>?</kbd> key
-      &nbsp;&middot;&nbsp; build 81642f36</p>
+      &nbsp;&middot;&nbsp; build a2eb95bb</p>
     <p class="splash-companion">Companion site: <a href="https://thebirding.site/" target="_blank" rel="noopener">BirdsWhere &mdash; thebirding.site</a>
       &mdash; a free, in-browser map of bird observations and distribution: where each species is
       recorded, when it occurs through the year, and live sightings, with field logging and offline maps.</p>
@@ -409,8 +409,8 @@ document.documentElement.classList.add("railoff","tloff");
         In <b>Whole day</b> mode one step runs the date&rsquo;s phases in turn (day, dusk, night
         I&ndash;III, dawn: each with its own radar releases, wind field and real length, ~24&nbsp;h in
         all) and shows only the end-of-day positions as dots. The <b>Display</b> setting picks how
-        the swarm is drawn: fading trails (the step's path), a dot with a 4-day tail of past
-        positions, dots only, or a kernel-density field (Gaussian, ~12&nbsp;px, scaled to its
+        the swarm is drawn: a dot with a 4-day tail of past positions (the default), fading trails
+        (the step's path), dots only, or a kernel-density field (Gaussian, ~12&nbsp;px, scaled to its
         maximum) of where the tracers are now.</p>
       <p><b>Dispersion.</b> Each tracer carries a fixed personal drift of up to &plusmn;0.75&nbsp;m/s
         in each axis plus &plusmn;0.5&nbsp;m/s of jitter per sub-step, a crude stand-in for
@@ -442,7 +442,7 @@ document.documentElement.classList.add("railoff","tloff");
 <script>
 (function(){
   var sp=document.getElementById("splash"); if(!sp) return;
-  var KEY="aloft_splash_seen", VER="81642f36", openedBy=null;
+  var KEY="aloft_splash_seen", VER="a2eb95bb", openedBy=null;
   var seen=false; try{ seen=localStorage.getItem(KEY)===VER; }catch(e){}
   if(!seen) sp.hidden=false;                    // first load of this app version -> show
   function open(by){ openedBy=by; sp.hidden=false; document.getElementById("splashgo").focus(); }
@@ -624,14 +624,14 @@ document.documentElement.classList.add("railoff","tloff");
       <div class="lbl" style="margin-top:10px">Particle traces</div>
       <label class="wxchk"><input type="checkbox" id="wxptcl" checked> Show &mdash; click &middot; right-click to seed</label>
       <div class="seg" id="ptmode" style="margin:2px 0 4px">
-        <button data-m="trail" aria-pressed="true">Trails</button>
-        <button data-m="tail" aria-pressed="false">4-day tail</button>
+        <button data-m="trail" aria-pressed="false">Trails</button>
+        <button data-m="tail" aria-pressed="true">4-day tail</button>
         <button data-m="dot" aria-pressed="false">Dots</button>
         <button data-m="density" aria-pressed="false">Density</button>
       </div>
       <label class="wxchk"><input type="checkbox" id="wxptceu"> European departure line <span style="color:#FFB05C">(amber)</span></label>
       <button type="button" id="ptclear" class="ptclear">Clear swarms</button>
-      <p class="note">The 0.25&deg; ECMWF weather, reduced to what matters for migration: <b>wind</b> barbs in the migration band &mdash; the strongest of the 925/850&nbsp;hPa levels (~800&ndash;1500&nbsp;m), drawn wherever there is data, light winds faint &mdash; or at the surface (10&nbsp;m), toggle above; the leading edge of <b>precipitation</b> (a barrier birds won't cross), and where the <b>ground is freezing</b> (&le;0&nbsp;&deg;C &mdash; blue hatched regions, distinct from grey precipitation; a frost triggers departures). <b>Particle traces</b>: click the map to release a <span style="color:#A855F7">purple</span>, persistent swarm (no lifetime) that rides the migration-band wind in lockstep with the timeline: step, scrub or play the dates to advect them (one phase &asymp; 3.4&nbsp;h of transport; a still timeline is a still picture). <b>Display</b>: <i>Trails</i> draws each step's path and lets it fade; <i>4-day tail</i> shows a dot per tracer with its last 96&nbsp;h as a fading tail; <i>Dots</i> the positions only; <i>Density</i> a kernel-density field of the tracers (sigma ~12&nbsp;px on screen, scaled to the densest spot, coloured by swarm). Right-click seeds a line of tracers along the American Atlantic coast, Miami to northern Labrador &mdash; the Nearctic departure line (<span style="color:#7FD8C4">teal</span>). Enable <b>European departure line</b> above and the same right-click also seeds the Atlantic-facing European seaboard, North Cape to Morocco, in <span style="color:#FFB05C">amber</span> (zoom out to watch). <b>Night shadow</b> shades the sunlit day side warm and the night side dark for each date/phase &mdash; because the map spans an ocean, a "night" phase falls at very different clock times in America and Europe, and the terminator makes that offset visible. <b>US east-coast radars (NEXRAD)</b> adds the American seaboard radars in <span style="color:#7FD8C4">teal</span> (matching the Nearctic tracers). They are processed the same way as Europe &mdash; the vol2bird radar equation into bird density and migration traffic (<b>birds/km</b>) &mdash; so a teal arrow reads on the same scale as a European one, and clicking one opens the same full profile (rose, flight altitudes, density &amp; heading history). Binned on each radar's own local night. <b>Radar-driven release</b> (on by default) makes the radars seed tracers along the American <b>shoreline</b> automatically as the timeline advances (no right-click needed): each radar releases about <b>one tracer per 250 birds</b> of its measured traffic, spread along its shoreline &mdash; daytime detections (mostly insects and local movement) release at a quarter of that &mdash; and each tracer draws its own <b>size</b> from a fixed guild mix (small passerines a few days, large passerines up to six, waders up to two weeks), the same prior for every release, so one release carries a mix of guilds; a trace fades as its bird nears that endurance and vanishes once it is more likely dead than alive. The released tracers are drawn <span style="color:#7FD8C4">teal</span> to match the US layer. The same automatic release is available for the <b>European aloft radars</b>: enable <b>Radar-driven release</b> under <i>European radars</i> and the Atlantic-facing seaboard (North Cape to Morocco) seeds <span style="color:#FFB05C">amber</span> tracers each phase, one per 250 birds/km of each radar's traffic. Both radar releases run <b>independently of the <i>Show</i> traces toggle</b> &mdash; turn traces off and the radar swarms keep flowing (clearing only when every release is off).</p>
+      <p class="note">The 0.25&deg; ECMWF weather, reduced to what matters for migration: <b>wind</b> barbs in the migration band &mdash; the strongest of the 925/850&nbsp;hPa levels (~800&ndash;1500&nbsp;m), drawn wherever there is data, light winds faint &mdash; or at the surface (10&nbsp;m), toggle above; the leading edge of <b>precipitation</b> (a barrier birds won't cross), and where the <b>ground is freezing</b> (&le;0&nbsp;&deg;C &mdash; blue hatched regions, distinct from grey precipitation; a frost triggers departures). <b>Particle traces</b>: click the map to release a <span style="color:#A855F7">purple</span>, persistent swarm (no lifetime) that rides the migration-band wind in lockstep with the timeline: step, scrub or play the dates to advect them (one phase &asymp; 3.4&nbsp;h of transport; a still timeline is a still picture). <b>Display</b>: <i>4-day tail</i> (default) shows a dot per tracer with its last 96&nbsp;h as a fading tail; <i>Trails</i> draws each step's path and lets it fade; <i>Dots</i> the positions only; <i>Density</i> a kernel-density field of the tracers (sigma ~12&nbsp;px on screen, scaled to the densest spot, coloured by swarm). Hovering the map reads out the tracers within 24&nbsp;px of the cursor in every mode: count by swarm, median age and endurance (and how many are fading), their mean ground track over the last day, and the local density. Right-click seeds a line of tracers along the American Atlantic coast, Miami to northern Labrador &mdash; the Nearctic departure line (<span style="color:#7FD8C4">teal</span>). Enable <b>European departure line</b> above and the same right-click also seeds the Atlantic-facing European seaboard, North Cape to Morocco, in <span style="color:#FFB05C">amber</span> (zoom out to watch). <b>Night shadow</b> shades the sunlit day side warm and the night side dark for each date/phase &mdash; because the map spans an ocean, a "night" phase falls at very different clock times in America and Europe, and the terminator makes that offset visible. <b>US east-coast radars (NEXRAD)</b> adds the American seaboard radars in <span style="color:#7FD8C4">teal</span> (matching the Nearctic tracers). They are processed the same way as Europe &mdash; the vol2bird radar equation into bird density and migration traffic (<b>birds/km</b>) &mdash; so a teal arrow reads on the same scale as a European one, and clicking one opens the same full profile (rose, flight altitudes, density &amp; heading history). Binned on each radar's own local night. <b>Radar-driven release</b> (on by default) makes the radars seed tracers along the American <b>shoreline</b> automatically as the timeline advances (no right-click needed): each radar releases about <b>one tracer per 250 birds</b> of its measured traffic, spread along its shoreline &mdash; daytime detections (mostly insects and local movement) release at a quarter of that &mdash; and each tracer draws its own <b>size</b> from a fixed guild mix (small passerines a few days, large passerines up to six, waders up to two weeks), the same prior for every release, so one release carries a mix of guilds; a trace fades as its bird nears that endurance and vanishes once it is more likely dead than alive. The released tracers are drawn <span style="color:#7FD8C4">teal</span> to match the US layer. The same automatic release is available for the <b>European aloft radars</b>: enable <b>Radar-driven release</b> under <i>European radars</i> and the Atlantic-facing seaboard (North Cape to Morocco) seeds <span style="color:#FFB05C">amber</span> tracers each phase, one per 250 birds/km of each radar's traffic. Both radar releases run <b>independently of the <i>Show</i> traces toggle</b> &mdash; turn traces off and the radar swarms keep flowing (clearing only when every release is off).</p>
     </div>
 
     <div class="grp" id="routesgrp">
@@ -1624,7 +1624,7 @@ const DAYTIME_FACTOR=0.25;   // daytime radar detections (mostly insects/local) 
 const PT_COL_NA="127,216,196";                 // Nearctic tracers: teal
 const PT_COL_EU="255,176,92";                  // Palearctic tracers: amber
 const PT_COL_CLICK="168,85,247";               // user-dropped (click) swarms: purple, no lifetime
-let ptMode="trail";                            // display: trail | tail | dot | density (settings)
+let ptMode="tail";                             // display: trail | tail | dot | density (settings); tail is the default
 const PT_TAIL_H=96;                            // tail mode keeps 4 days of positions per tracer
 function ptField(){ const wf=wxFrame(); return (wf && wf.wgrid) ? wf.wgrid : null; }
 function ptSample(g,lon,lat){                 // bilinear, m/s; null off-grid/no-data
@@ -3067,6 +3067,32 @@ function radarReadout(i){
   else s+=`<div class="tip-sub">no data this phase</div>`;
   return s+`<div class="tip-hint">click for the full profile</div>`;
 }
+// Tracers near the cursor (within 24 px): count by swarm, median age and
+// endurance (and how many are fading), the mean ground track over the last
+// day from the position histories, and the local density.
+function tracerReadout(mx,my,lat){
+  const R=24, near=ptParts.filter(p=>Math.hypot(px(p.lon)-mx,py(p.lat)-my)<=R);
+  if(!near.length) return [];
+  const rkm=R*111.32*Math.max(0.2,Math.cos(lat*Math.PI/180))/(SC*view.k);
+  const NAME={[PT_COL_NA]:"teal",[PT_COL_EU]:"amber",[PT_COL_CLICK]:"purple"}, by={};
+  for(const p of near){ const c=p.col||PT_COL_NA; by[c]=(by[c]||0)+1; }
+  const mix=Object.entries(by).map(([c,n])=>`<span style="color:rgb(${c})">${n} ${NAME[c]||""}</span>`).join(" · ");
+  const med=a=>{ a=a.slice().sort((x,y)=>x-y); return a[a.length>>1]; };
+  const rows=[`${near.length} tracer${near.length>1?"s":""} within ${rkm.toFixed(0)} km: ${mix}`];
+  let s=`age ${(med(near.map(p=>p.age))/24).toFixed(1)} d median`;
+  const mortal=near.filter(p=>isFinite(p.life));
+  if(mortal.length){ s+=` · endurance ${(med(mortal.map(p=>p.life))/24).toFixed(1)} d`;
+    const f=mortal.filter(p=>ptSurvival(p)<1).length; if(f) s+=` · ${f} fading`; }
+  rows.push(s);
+  let du=0,dv=0,dt=0;                           // mean velocity over the last 24 h, km/h
+  for(const p of near){ const h=p.hist; if(!h||h.length<2) continue;
+    const h0=h.find(e=>e[2]>=p.age-24)||h[0], hrs=p.age-h0[2]; if(hrs<=0) continue;
+    du+=(p.lon-h0[0])*111.32*Math.max(0.2,Math.cos(p.lat*Math.PI/180)); dv+=(p.lat-h0[1])*110.57; dt+=hrs; }
+  if(dt>0){ const b=bearing(du,dv);
+    rows.push(`track, last day: ${(Math.hypot(du,dv)/dt).toFixed(0)} km/h &rarr; ${SEC[Math.round(b/45)%NS]} ${Math.round(b)}°`); }
+  rows.push(`density ${(near.length/(Math.PI*rkm*rkm)*1e4).toFixed(1)} tracers / 10&#8308; km&sup2;`);
+  return rows;
+}
 if(canHover){
   cvP.addEventListener("pointermove",e=>{
     if(drag){ hideTip(); return; }
@@ -3083,6 +3109,7 @@ if(canHover){
       const g=ptField(), w=g?ptSample(g,lon,lat):null;
       if(w){ const sp=Math.hypot(w[0],w[1]), wb=(bearing(w[0],w[1])+180)%360;   // wind blows FROM
         rows.push(`wind ${sp.toFixed(0)} m/s from ${SEC[Math.round(wb/45)%NS]}`); }
+      rows.push(...tracerReadout(mx,my,lat));
       const cond=[];
       if(pointInRings(lon,lat,frostRingsNow())) cond.push(`<span style="color:#8fc7ff">frost</span>`);
       const wf=wxFrame(); if(wf && wf.front && pointInRings(lon,lat,wf.front)) cond.push(`<span style="color:#c4d2e6">rain</span>`);
