@@ -61,10 +61,15 @@ a 1 km line during the phase; most migration is nocturnal.
 - **Precipitation front** — grey wiggly-edged regions birds won't cross.
 - **Ground frost** — blue hatched regions (≤0 °C skin temp); a frost triggers
   departures.
+- **Coverage** — the ECMWF run is fetched 72 h out; a day is served only once the
+  forecast covers it to its end everywhere, so weather runs about two days past the
+  radar and the last day is always complete (no night retreating eastward).
 
 ### Particle traces
 - Passive tracers riding the migration-band wind — where the wind alone would carry
-  a bird. **Click** to drop a **purple, persistent swarm** (no lifetime) you can
+  a bird. **Display** setting: fading **trails** (default), a dot with a **4-day
+  tail** of past positions, **dots** only, or a kernel-**density** field of the
+  tracers (Gaussian ~12 px, scaled to its maximum, coloured by swarm). **Click** to drop a **purple, persistent swarm** (no lifetime) you can
   follow indefinitely; **right-click** to seed the **Nearctic**
   departure line (American Atlantic coast, Miami→Labrador, teal). Enable the
   **European departure line** to also seed the Atlantic-facing European seaboard

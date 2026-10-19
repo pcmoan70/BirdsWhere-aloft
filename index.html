@@ -22,7 +22,7 @@ body{background:var(--ground);color:var(--ink);font-family:var(--f-sans);
 button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
-/* intro splash: shown once per app version (build.py stamps 7c7ac979), and on
+/* intro splash: shown once per app version (build.py stamps 81642f36), and on
    demand from the ? button top-right / the ? key. Main points + a symbol key. */
 #splash{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;
   padding:24px;background:rgba(4,10,12,.74);backdrop-filter:blur(8px);animation:splashIn .3s ease}
@@ -328,7 +328,7 @@ document.documentElement.classList.add("railoff","tloff");
     <p class="splash-foot">Data: aloftdata.eu &middot; NOAA NEXRAD &middot; ECMWF &nbsp;&middot;&nbsp;
       Full guide: <i>How to read this map</i> in the left panel &nbsp;&middot;&nbsp;
       Reopen this screen with the <b>?</b> button (top-right) or the <kbd>?</kbd> key
-      &nbsp;&middot;&nbsp; build 7c7ac979</p>
+      &nbsp;&middot;&nbsp; build 81642f36</p>
     <p class="splash-companion">Companion site: <a href="https://thebirding.site/" target="_blank" rel="noopener">BirdsWhere &mdash; thebirding.site</a>
       &mdash; a free, in-browser map of bird observations and distribution: where each species is
       recorded, when it occurs through the year, and live sightings, with field logging and offline maps.</p>
@@ -389,7 +389,7 @@ document.documentElement.classList.add("railoff","tloff");
         showing where the wind alone would carry a bird. It has no airspeed or heading of its
         own, so a trace is drift, not a track; compare it with the radar arrows to separate wind
         from the birds&rsquo; own effort.</p>
-      <p><b>The wind.</b> ECMWF IFS open-data forecasts on a 0.25&deg; grid at 3-hour steps, at
+      <p><b>The wind.</b> ECMWF IFS open-data forecasts on a 0.25&deg; grid at 3-hour steps out to 72&nbsp;h, at
         925 and 850&nbsp;hPa (about 800 and 1500&nbsp;m); per cell the stronger of the two is taken
         as the migration-band wind (the same rule as the barbs). It is subsampled to 1.5&deg; over
         84&deg;W&ndash;40&deg;E, 15&ndash;82&deg;N, and for each date and solar phase the 3-hourly
@@ -408,7 +408,10 @@ document.documentElement.classList.add("railoff","tloff");
         domain is removed. Scrubbing backwards clears every tracer; there is no reverse advection.
         In <b>Whole day</b> mode one step runs the date&rsquo;s phases in turn (day, dusk, night
         I&ndash;III, dawn: each with its own radar releases, wind field and real length, ~24&nbsp;h in
-        all) and shows only the end-of-day positions as dots.</p>
+        all) and shows only the end-of-day positions as dots. The <b>Display</b> setting picks how
+        the swarm is drawn: fading trails (the step's path), a dot with a 4-day tail of past
+        positions, dots only, or a kernel-density field (Gaussian, ~12&nbsp;px, scaled to its
+        maximum) of where the tracers are now.</p>
       <p><b>Dispersion.</b> Each tracer carries a fixed personal drift of up to &plusmn;0.75&nbsp;m/s
         in each axis plus &plusmn;0.5&nbsp;m/s of jitter per sub-step, a crude stand-in for
         sub-grid turbulence and individual variation. At most 4000 tracers exist at once.</p>
@@ -439,7 +442,7 @@ document.documentElement.classList.add("railoff","tloff");
 <script>
 (function(){
   var sp=document.getElementById("splash"); if(!sp) return;
-  var KEY="aloft_splash_seen", VER="7c7ac979", openedBy=null;
+  var KEY="aloft_splash_seen", VER="81642f36", openedBy=null;
   var seen=false; try{ seen=localStorage.getItem(KEY)===VER; }catch(e){}
   if(!seen) sp.hidden=false;                    // first load of this app version -> show
   function open(by){ openedBy=by; sp.hidden=false; document.getElementById("splashgo").focus(); }
@@ -550,7 +553,9 @@ document.documentElement.classList.add("railoff","tloff");
         The phase strip under the date filters which phases the scrubber visits. Dashed
         lines on the traffic graph mark where each source&rsquo;s data ends:
         <span style="color:#E8A33D">European radar</span>, <span style="color:#7FD8C4">US radar</span>
-        and <span style="color:#6FC6FF">weather</span> (the forecast runs a few days past the radar).
+        and <span style="color:#6FC6FF">weather</span> (the forecast runs about two days past the radar; a
+        day is served only once the forecast covers it to its end everywhere, so the last weather
+        day is always a complete one).
         Side and bottom panels collapse with their tabs; the map re-fits. With a mouse,
         touching the left or bottom edge of the window slides a collapsed panel out for a
         look: move off it before it is halfway and it snaps back, past halfway it stays open.</p>
@@ -618,9 +623,15 @@ document.documentElement.classList.add("railoff","tloff");
 
       <div class="lbl" style="margin-top:10px">Particle traces</div>
       <label class="wxchk"><input type="checkbox" id="wxptcl" checked> Show &mdash; click &middot; right-click to seed</label>
+      <div class="seg" id="ptmode" style="margin:2px 0 4px">
+        <button data-m="trail" aria-pressed="true">Trails</button>
+        <button data-m="tail" aria-pressed="false">4-day tail</button>
+        <button data-m="dot" aria-pressed="false">Dots</button>
+        <button data-m="density" aria-pressed="false">Density</button>
+      </div>
       <label class="wxchk"><input type="checkbox" id="wxptceu"> European departure line <span style="color:#FFB05C">(amber)</span></label>
       <button type="button" id="ptclear" class="ptclear">Clear swarms</button>
-      <p class="note">The 0.25&deg; ECMWF weather, reduced to what matters for migration: <b>wind</b> barbs in the migration band &mdash; the strongest of the 925/850&nbsp;hPa levels (~800&ndash;1500&nbsp;m), drawn wherever there is data, light winds faint &mdash; or at the surface (10&nbsp;m), toggle above; the leading edge of <b>precipitation</b> (a barrier birds won't cross), and where the <b>ground is freezing</b> (&le;0&nbsp;&deg;C &mdash; blue hatched regions, distinct from grey precipitation; a frost triggers departures). <b>Particle traces</b>: click the map to release a <span style="color:#A855F7">purple</span>, persistent swarm (no lifetime) that rides the migration-band wind in lockstep with the timeline: step, scrub or play the dates to advect them (one phase &asymp; 3.4&nbsp;h of transport; a still timeline is a still picture). Right-click seeds a line of tracers along the American Atlantic coast, Miami to northern Labrador &mdash; the Nearctic departure line (<span style="color:#7FD8C4">teal</span>). Enable <b>European departure line</b> above and the same right-click also seeds the Atlantic-facing European seaboard, North Cape to Morocco, in <span style="color:#FFB05C">amber</span> (zoom out to watch). <b>Night shadow</b> shades the sunlit day side warm and the night side dark for each date/phase &mdash; because the map spans an ocean, a "night" phase falls at very different clock times in America and Europe, and the terminator makes that offset visible. <b>US east-coast radars (NEXRAD)</b> adds the American seaboard radars in <span style="color:#7FD8C4">teal</span> (matching the Nearctic tracers). They are processed the same way as Europe &mdash; the vol2bird radar equation into bird density and migration traffic (<b>birds/km</b>) &mdash; so a teal arrow reads on the same scale as a European one, and clicking one opens the same full profile (rose, flight altitudes, density &amp; heading history). Binned on each radar's own local night. <b>Radar-driven release</b> (on by default) makes the radars seed tracers along the American <b>shoreline</b> automatically as the timeline advances (no right-click needed): each radar releases about <b>one tracer per 250 birds</b> of its measured traffic, spread along its shoreline &mdash; daytime detections (mostly insects and local movement) release at a quarter of that &mdash; and each tracer draws its own <b>size</b> from a fixed guild mix (small passerines a few days, large passerines up to six, waders up to two weeks), the same prior for every release, so one release carries a mix of guilds; a trace fades as its bird nears that endurance and vanishes once it is more likely dead than alive. The released tracers are drawn <span style="color:#7FD8C4">teal</span> to match the US layer. The same automatic release is available for the <b>European aloft radars</b>: enable <b>Radar-driven release</b> under <i>European radars</i> and the Atlantic-facing seaboard (North Cape to Morocco) seeds <span style="color:#FFB05C">amber</span> tracers each phase, one per 250 birds/km of each radar's traffic. Both radar releases run <b>independently of the <i>Show</i> traces toggle</b> &mdash; turn traces off and the radar swarms keep flowing (clearing only when every release is off).</p>
+      <p class="note">The 0.25&deg; ECMWF weather, reduced to what matters for migration: <b>wind</b> barbs in the migration band &mdash; the strongest of the 925/850&nbsp;hPa levels (~800&ndash;1500&nbsp;m), drawn wherever there is data, light winds faint &mdash; or at the surface (10&nbsp;m), toggle above; the leading edge of <b>precipitation</b> (a barrier birds won't cross), and where the <b>ground is freezing</b> (&le;0&nbsp;&deg;C &mdash; blue hatched regions, distinct from grey precipitation; a frost triggers departures). <b>Particle traces</b>: click the map to release a <span style="color:#A855F7">purple</span>, persistent swarm (no lifetime) that rides the migration-band wind in lockstep with the timeline: step, scrub or play the dates to advect them (one phase &asymp; 3.4&nbsp;h of transport; a still timeline is a still picture). <b>Display</b>: <i>Trails</i> draws each step's path and lets it fade; <i>4-day tail</i> shows a dot per tracer with its last 96&nbsp;h as a fading tail; <i>Dots</i> the positions only; <i>Density</i> a kernel-density field of the tracers (sigma ~12&nbsp;px on screen, scaled to the densest spot, coloured by swarm). Right-click seeds a line of tracers along the American Atlantic coast, Miami to northern Labrador &mdash; the Nearctic departure line (<span style="color:#7FD8C4">teal</span>). Enable <b>European departure line</b> above and the same right-click also seeds the Atlantic-facing European seaboard, North Cape to Morocco, in <span style="color:#FFB05C">amber</span> (zoom out to watch). <b>Night shadow</b> shades the sunlit day side warm and the night side dark for each date/phase &mdash; because the map spans an ocean, a "night" phase falls at very different clock times in America and Europe, and the terminator makes that offset visible. <b>US east-coast radars (NEXRAD)</b> adds the American seaboard radars in <span style="color:#7FD8C4">teal</span> (matching the Nearctic tracers). They are processed the same way as Europe &mdash; the vol2bird radar equation into bird density and migration traffic (<b>birds/km</b>) &mdash; so a teal arrow reads on the same scale as a European one, and clicking one opens the same full profile (rose, flight altitudes, density &amp; heading history). Binned on each radar's own local night. <b>Radar-driven release</b> (on by default) makes the radars seed tracers along the American <b>shoreline</b> automatically as the timeline advances (no right-click needed): each radar releases about <b>one tracer per 250 birds</b> of its measured traffic, spread along its shoreline &mdash; daytime detections (mostly insects and local movement) release at a quarter of that &mdash; and each tracer draws its own <b>size</b> from a fixed guild mix (small passerines a few days, large passerines up to six, waders up to two weeks), the same prior for every release, so one release carries a mix of guilds; a trace fades as its bird nears that endurance and vanishes once it is more likely dead than alive. The released tracers are drawn <span style="color:#7FD8C4">teal</span> to match the US layer. The same automatic release is available for the <b>European aloft radars</b>: enable <b>Radar-driven release</b> under <i>European radars</i> and the Atlantic-facing seaboard (North Cape to Morocco) seeds <span style="color:#FFB05C">amber</span> tracers each phase, one per 250 birds/km of each radar's traffic. Both radar releases run <b>independently of the <i>Show</i> traces toggle</b> &mdash; turn traces off and the radar swarms keep flowing (clearing only when every release is off).</p>
     </div>
 
     <div class="grp" id="routesgrp">
@@ -1613,6 +1624,8 @@ const DAYTIME_FACTOR=0.25;   // daytime radar detections (mostly insects/local) 
 const PT_COL_NA="127,216,196";                 // Nearctic tracers: teal
 const PT_COL_EU="255,176,92";                  // Palearctic tracers: amber
 const PT_COL_CLICK="168,85,247";               // user-dropped (click) swarms: purple, no lifetime
+let ptMode="trail";                            // display: trail | tail | dot | density (settings)
+const PT_TAIL_H=96;                            // tail mode keeps 4 days of positions per tracer
 function ptField(){ const wf=wxFrame(); return (wf && wf.wgrid) ? wf.wgrid : null; }
 function ptSample(g,lon,lat){                 // bilinear, m/s; null off-grid/no-data
   const fx=(lon-g.lon0)/g.dlon, fy=(lat-g.lat0)/g.dlat;   // dlat<0: lat descends
@@ -1849,14 +1862,61 @@ function ptDots(){                               // end-of-day positions (whole-
     ctxPt.beginPath(); ctxPt.arc(px(p.lon),py(p.lat),1.6,0,7); ctxPt.fill();
   }
 }
+// The non-trail display modes redraw the whole picture from particle state
+// after every step (and after a pan / zoom): a dot per tracer, with its last
+// 4 days of positions as a fading tail in "tail" mode, or a density field.
+function ptRender(){
+  ctxPt.clearRect(0,0,W,H);
+  if(ptMode==="density"){ ptDensity(); return; }
+  ctxPt.lineWidth=1.2; ctxPt.lineCap="round";
+  for(const p of ptParts){
+    const col=p.col||PT_COL_NA, a=0.15+0.8*ptSurvival(p);
+    if(ptMode==="tail" && p.hist){
+      for(let k=1;k<p.hist.length;k++){
+        const h0=p.hist[k-1], h1=p.hist[k];
+        ctxPt.strokeStyle=`rgba(${col},${a*(1-(p.age-h1[2])/PT_TAIL_H)})`;
+        ctxPt.beginPath(); ctxPt.moveTo(px(h0[0]),py(h0[1])); ctxPt.lineTo(px(h1[0]),py(h1[1])); ctxPt.stroke();
+      }
+    }
+    ctxPt.fillStyle=`rgba(${col},${a})`;
+    ctxPt.beginPath(); ctxPt.arc(px(p.lon),py(p.lat),1.6,0,7); ctxPt.fill();
+  }
+}
+// Kernel density of the tracers on screen: each (survival-weighted) tracer is
+// a Gaussian of sigma ~12 px on a 4 px grid; opacity follows sqrt(density /
+// max) so the spread shows, not just the peak; the colour is the weighted mean
+// of the contributing swarms' colours (teal / amber / purple).
+function ptDensity(){
+  const S=4, gw=Math.ceil(W/S), gh=Math.ceil(H/S), R=6, n=gw*gh;
+  const ws=new Float32Array(n), cr=new Float32Array(n), cg=new Float32Array(n), cb=new Float32Array(n);
+  const kern=[]; for(let dy=-R;dy<=R;dy++) for(let dx=-R;dx<=R;dx++) kern.push([dx,dy,Math.exp(-(dx*dx+dy*dy)/(2*(R/2)*(R/2)))]);
+  for(const p of ptParts){
+    const cx=Math.round(px(p.lon)/S), cy=Math.round(py(p.lat)/S);
+    if(cx<-R||cy<-R||cx>gw+R||cy>gh+R) continue;
+    const w0=ptSurvival(p), [r,g,b]=(p.col||PT_COL_NA).split(",").map(Number);
+    for(const [dx,dy,k] of kern){ const X=cx+dx, Y=cy+dy; if(X<0||Y<0||X>=gw||Y>=gh) continue;
+      const i=Y*gw+X, w=w0*k; ws[i]+=w; cr[i]+=w*r; cg[i]+=w*g; cb[i]+=w*b; }
+  }
+  let mx=0; for(let i=0;i<n;i++) if(ws[i]>mx) mx=ws[i];
+  if(!mx) return;
+  const img=new ImageData(gw,gh), d=img.data;
+  for(let i=0;i<n;i++){ const w=ws[i]; if(!w) continue;
+    d[4*i]=cr[i]/w; d[4*i+1]=cg[i]/w; d[4*i+2]=cb[i]/w; d[4*i+3]=Math.round(220*Math.sqrt(w/mx)); }
+  const tc=ptDensity.tc||(ptDensity.tc=document.createElement("canvas"));
+  tc.width=gw; tc.height=gh; tc.getContext("2d").putImageData(img,0,0);
+  ctxPt.drawImage(tc,0,0,gw,gh,0,0,gw*S,gh*S);
+}
 let ptLastIdx=null, ptDayFrom=0;              // ptDayFrom: phases of the first day already stepped in phase mode
 function ptAdvect(g,hours,draw=true){          // one phase of transport, Heun (RK2), 8 substeps
   // trails fade per phase stepped, not per wall-clock frame: pausing keeps
   // the picture, stepping ages it
-  ctxPt.globalCompositeOperation="destination-out";
-  ctxPt.fillStyle="rgba(0,0,0,.06)"; ctxPt.fillRect(0,0,W,H);
-  ctxPt.globalCompositeOperation="source-over";
-  ctxPt.lineCap="round";
+  draw = draw && ptMode==="trail";             // the other display modes redraw from state (ptRender)
+  if(draw){
+    ctxPt.globalCompositeOperation="destination-out";
+    ctxPt.fillStyle="rgba(0,0,0,.06)"; ctxPt.fillRect(0,0,W,H);
+    ctxPt.globalCompositeOperation="source-over";
+    ctxPt.lineCap="round";
+  }
   // Heun (RK2) substeps. Stability: explicit Euler amplifies in rotational
   // (cyclonic) flow; Heun does not to first order. The substep must still keep
   // both the CFL number (|v|dt/dx) and the rotation angle (vorticity*dt) small.
@@ -1871,6 +1931,7 @@ function ptAdvect(g,hours,draw=true){          // one phase of transport, Heun (
     // coverage is not a wall -- the particle coasts on its last velocity
     if(p.age>p.life || (g && (p.lon<g.lon0||p.lon>lonEnd||p.lat>g.lat0||p.lat<latEnd))){
       ptParts.splice(n,1); continue; }
+    if(!p.hist) p.hist=[[p.lon,p.lat,p.age-hours]];   // position history for the tail display
     ctxPt.strokeStyle=`rgba(${p.col||PT_COL_NA},${0.15+0.8*ptSurvival(p)})`;
     ctxPt.lineWidth=1.4;
     for(let q=0;q<SUB;q++){
@@ -1891,11 +1952,14 @@ function ptAdvect(g,hours,draw=true){          // one phase of transport, Heun (
       p.lat+=vv*sim/110574;
       if(draw){ ctxPt.beginPath(); ctxPt.moveTo(x0,y0); ctxPt.lineTo(px(p.lon),py(p.lat)); ctxPt.stroke(); }
     }
+    p.hist.push([p.lon,p.lat,p.age]);
+    while(p.hist[0][2]<p.age-PT_TAIL_H) p.hist.shift();
   }
 }
 function ptStep(){
   if(ptView===null||ptView.x!==view.x||ptView.y!==view.y||ptView.k!==view.k){
-    ctxPt.clearRect(0,0,W,H); ptView={x:view.x,y:view.y,k:view.k};  // stale trails
+    ptView={x:view.x,y:view.y,k:view.k};        // trails are stale after a pan / zoom; the other modes redraw
+    if(ptMode==="trail") ctxPt.clearRect(0,0,W,H); else ptRender();
   }
   if(ptLastIdx===null) ptLastIdx=idx;
   // rewind or wrap-around (play restarting from the end): reset the experiment.
@@ -1919,15 +1983,14 @@ function ptStep(){
         ptAdvect(ptWgridAt(ph[k]), ptPhaseHours(ph[k]), false);
       }
       ptDayFrom=0;
-      ptDots();
+      if(ptMode==="trail") ptDots();
     }
-    return;
-  }
-  for(let f=from; f<from+steps; f++){
+  } else for(let f=from; f<from+steps; f++){
     if(ptRadar) ptSeedRadar(f);                  // automatic per-phase US shoreline release
     if(ptRadarEU) ptSeedRadarEU(f);              // automatic per-phase European seaboard release
     ptAdvect(ptWgridAt(f), ptPhaseHours(f));     // each stepped frame's own wind
   }
+  if(ptMode!=="trail") ptRender();
 }
 function ptClear(){ ptParts=[]; ctxPt.clearRect(0,0,W,H); }
 
@@ -2804,6 +2867,11 @@ document.getElementById("tltog").addEventListener("click",
     ptOn=e.target.checked; if(!ptOn && !ptRadar && !ptRadarEU) ptClear();   // keep radar swarms if a radar release is on
   });
   document.getElementById("wxptceu").addEventListener("change",e=>{ ptEU=e.target.checked; });
+  document.querySelectorAll("#ptmode button").forEach(b=>b.addEventListener("click",()=>{
+    ptMode=b.dataset.m;
+    [...document.querySelectorAll("#ptmode button")].forEach(x=>x.setAttribute("aria-pressed", x===b?"true":"false"));
+    ctxPt.clearRect(0,0,W,H); if(ptMode==="trail") ptDots(); else ptRender();   // redraw the current state in the new style
+  }));
   document.getElementById("wxshadow").addEventListener("change",e=>{ showShadow=e.target.checked; draw(); });
   document.getElementById("wxshadowanim").addEventListener("change",e=>{ shadowAnim=e.target.checked; draw(); });
   const hasUS=RAD.some(r=>r&&r.us);
@@ -3140,7 +3208,7 @@ requestAnimationFrame(loop);
 // debug/introspection handle (module scope isn't global)
 window.__aloft = { DATA, WX, OVL, wxFrame, ovlBlend, draw, drawBase, frame, splitKey,
   ptDrop, ptField, ptSample, ptStep, ptSeedCoast, ptSeedLine, ptSeedRadar, ptSeedRadarEU, aspToLife, PT_COAST_EU,
-  ptState: ()=>({n:ptParts.length, ages:ptParts.map(p=>p.age), last:ptLastIdx, dayFrom:ptDayFrom, idx, day:dayMode()}),
+  ptState: ()=>({n:ptParts.length, ages:ptParts.map(p=>p.age), last:ptLastIdx, dayFrom:ptDayFrom, idx, day:dayMode(), mode:ptMode, hist:ptParts.map(p=>(p.hist||[]).length)}),
   get ptOn(){return ptOn}, get ptParts(){return ptParts},
   get ptEU(){return ptEU}, set ptEU(v){ptEU=v},
   px, py, windBarb, snowflake, ctxWx, ctxB, ctxP,
