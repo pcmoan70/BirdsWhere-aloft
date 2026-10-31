@@ -60,6 +60,29 @@ p b{color:var(--ink)}
 ul{max-width:760px;color:var(--ink-2);padding-left:20px}
 code{font-family:var(--f-mono);font-size:12px;color:var(--ink)}
 .foot{margin-top:40px;padding-top:14px;border-top:1px solid var(--line);color:var(--muted);font-size:12px}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px}
+.tabs button,.modes button{font:inherit;font-size:12.5px;color:var(--ink-2);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:5px 10px;cursor:pointer}
+.tabs button.on,.modes button.on{color:#052420;background:var(--accent);border-color:var(--accent);font-weight:600}
+.tabs button:hover,.modes button:hover{border-color:var(--accent)}
+.modes{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}
+.mapwrap{display:grid;grid-template-columns:minmax(240px,440px) minmax(260px,1fr);gap:20px;align-items:start}
+#map{width:100%;height:auto;display:block;background:var(--ground-2);border:1px solid var(--line);border-radius:10px}
+#map .land{fill:#123430;stroke:none}
+#map .coast{fill:none;stroke:#2e8b74;stroke-opacity:.7;stroke-width:.5;pointer-events:none}
+#map .cell{stroke:#08201E;stroke-width:.25}
+#map .cell.na{fill:#eaf4f1;fill-opacity:.045}
+#map .cell{fill-opacity:.88}
+.slider[hidden]{display:none}
+#map .band{stroke:#a7c9c0;stroke-opacity:.35;stroke-dasharray:2 2;stroke-width:.5}
+.legend{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:11.5px;color:var(--ink-2);font-family:var(--f-mono)}
+.legend i{display:block;height:10px;width:140px;border-radius:2px}
+.slider{display:flex;align-items:center;gap:10px;margin:0 0 10px;font-family:var(--f-mono);font-size:12px;color:var(--ink-2)}
+.slider input{flex:1;accent-color:var(--accent)}
+.mapside h3{margin:0;font-size:20px}
+.mapside .sci{color:var(--muted);font-size:12px;font-style:italic;margin:0 0 10px}
+.mapside .sci span{font-style:normal;margin-left:6px}
+#mread{min-height:2.6em;color:var(--ink)}
+@media (max-width:700px){.mapwrap{grid-template-columns:1fr}}
 @media (max-width:560px){.rrow{grid-template-columns:78px 1fr 48px}header h1{font-size:22px}}
 </style>
 </head>
@@ -72,6 +95,27 @@ The bars are the share of birding visits expected to report each species between
 <b>fifty-six winters of observations</b> (Artsobservasjoner and Artportalen via GBIF) and the seed and berry crops that drive them.
 The percentage is the chance of an <b>irruption winter</b> — a share above the region's upper third of past winters.</p>
 
+<section id="mapsec">
+<div class="tabs" id="sptabs"></div>
+<div class="mapwrap">
+  <div>
+    <div class="modes" id="modes"></div>
+    <div class="slider" id="slider" hidden><input type="range" id="season" min="1990" max="2025" value="2025"><span id="seasonlbl"></span></div>
+    <svg id="map" viewBox="0 0 263 370"></svg>
+    <div class="legend" id="legend"></div>
+  </div>
+  <div class="mapside">
+    <h3 id="mtitle"></h3>
+    <p class="sci" id="msci"></p>
+    <div id="mrows"></div>
+    <div id="mspark"></div>
+    <p class="note" id="mread">Hover a cell for its numbers.</p>
+    <p class="note">Cells are 0.5° × 1° (about 55 × 55 km). Grey cells had too few birding visits to say. The outlook spreads each region's forecast over the cells in proportion to each cell's typical winter share; the history, last winter and early-autumn views are observed shares.</p>
+  </div>
+</div>
+</section>
+
+<h2>All species at a glance</h2>
 <div class="key"><span><i style="background:var(--accent-dim)"></i>expected share this winter (±1 sd band)</span><span><i style="background:var(--warm)"></i>typical winter (median)</span><span><i style="background:var(--ink-2)"></i>irruption threshold</span></div>
 <div class="grid" id="cards"></div>
 <p class="note">Share = visits that reported the species per 1 000 birding visits, October–March; a visit is one observer, one day, one place (0.01°). Regions: north ≥ 64°N, mid 60.5–64°N, south &lt; 60.5°N. Sparkline: the winters since 1980/81, the dashed line the irruption threshold, the dot this winter's expectation with its ±1 sd band.</p>
@@ -137,7 +181,7 @@ var cards = D.species.map(function(sp){
       '<span class="p ' + cls + '">' + Math.round(r.p_irr * 100) + '%</span></div>'; }).join("");
   var best = ORDER.filter(function(k){ return sp.regions[k] && sp.regions[k].pred; }).sort(function(a, b){ return sp.regions[b].seasons.length - sp.regions[a].seasons.length; })[0];
   var ce = sp.crop_effect, cetxt = ce ? (ce[2] < 0 ? "the " + sp.crop + " index improved the hindcasts (MAE " + ce[0].toFixed(2) + ", 90 % " + ce[1].toFixed(2) + " to " + ce[2].toFixed(2) + ")" : "the " + sp.crop + " index did not improve the hindcasts (" + ce[0].toFixed(2) + ", 90 % " + ce[1].toFixed(2) + " to " + ce[2].toFixed(2) + ")") : "";
-  return '<div class="card"><h3>' + sp.en + '</h3><p class="sci">' + sp.key + '<span>· ' + sp.no + '</span></p>' + rows +
+  return '<div class="card" data-sp="' + sp.key + '"><h3>' + sp.en + '</h3><p class="sci">' + sp.key + '<span>· ' + sp.no + '</span></p><div class="rows">' + rows + '</div>' +
     (best ? spark(sp.regions[best], 300, 64) : "") + '<p class="note">Sparkline: ' + D.regions[best] + '. In hindcasts ' + cetxt + '.</p></div>';
 });
 document.getElementById("cards").innerHTML = cards.join("");
@@ -151,6 +195,47 @@ var cb = Object.keys(D.crops).map(function(k){ var c = D.crops[k], w = 300, h = 
   var labs = xs.filter(function(s){ return s % 10 === 0; }).map(function(s){ return '<text x="' + X(s) + '" y="' + (h - 1) + '" font-size="7.5" fill="#7ca39a" text-anchor="middle" font-family="IBM Plex Mono,monospace">' + s + '</text>'; }).join("");
   return '<div class="cropbox"><h4>' + k.replace("FI ", "Finland · ") + ' index, ' + xs[0] + '–' + xs[xs.length - 1] + '</h4><svg class="spark" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none"><line x1="2" x2="' + (w - 2) + '" y1="' + Y(0) + '" y2="' + Y(0) + '" stroke="#1c3d38"/>' + bars + labs + '</svg><p class="note">Standardised (z) per series: green above the series mean, red below.</p></div>'; });
 document.getElementById("crops").innerHTML = cb.join("");
+
+/* ---------- the map ---------- */
+var C = null, cur = { sp: D.species[0].key, mode: "out", season: 2025 };
+var MODES = [["out", "Outlook 2026/27"], ["ratio", "Outlook vs typical"], ["typ", "Typical winter"], ["last", "Last winter"], ["early", "Early autumn vs typical"], ["hist", "Past winters"]];
+var KX = 20 * Math.cos(63 * Math.PI / 180), KY = 20, LON0 = 3, LAT1 = 72.5;
+function px(lon){ return (lon - LON0) * KX; } function py(lat){ return (LAT1 - lat) * KY; }
+function seqCol(t){ var st = [[13,43,40],[46,139,116],[127,216,196],[240,179,91],[232,107,77]]; t = Math.max(0, Math.min(1, t)) * (st.length - 1); var i = Math.floor(t), f = t - i, a = st[i], b = st[Math.min(i + 1, st.length - 1)]; return "rgb(" + [0,1,2].map(function(k){ return Math.round(a[k] + (b[k] - a[k]) * f); }).join(",") + ")"; }
+function divCol(l){ var t = Math.max(-1, Math.min(1, l / 2)); var a = t < 0 ? [79,143,224] : [232,107,77], n = [26,59,54], f = Math.abs(t); return "rgb(" + [0,1,2].map(function(k){ return Math.round(n[k] + (a[k] - n[k]) * f); }).join(",") + ")"; }
+function values(){ var sp = C.species[cur.sp], m = cur.mode;
+  if (m === "hist") return { v: sp.hist[String(cur.season)], kind: "share" };
+  if (m === "ratio") return { v: sp.out.map(function(x, i){ return x != null && sp.typ[i] ? Math.log2(x / sp.typ[i]) : null; }), kind: "ratio" };
+  if (m === "early") return { v: sp.early.map(function(x, i){ return x != null && sp.early_typ[i] != null ? Math.log2((x + 0.5) / (sp.early_typ[i] + 0.5)) : null; }), kind: "ratio" };
+  return { v: sp[m], kind: "share" }; }
+function scaleFor(sp){ var all = []; ["typ", "out", "last"].forEach(function(k){ C.species[sp][k].forEach(function(x){ if (x != null && x > 0) all.push(x); }); }); all.sort(function(a, b){ return a - b; });
+  var lo = all[Math.floor(all.length * 0.05)] || 0.1, hi = all[Math.floor(all.length * 0.97)] || 10; lo = Math.max(lo, 0.2); if (hi <= lo * 2) hi = lo * 4; return { lo: Math.log(lo), hi: Math.log(hi) }; }
+function drawMap(){ var sv = document.getElementById("map"), r = values(), sc = scaleFor(cur.sp), out = [];
+  C.land.forEach(function(ring){ out.push('<path class="land" d="M' + ring.map(function(p){ return px(p[0]).toFixed(1) + " " + py(p[1]).toFixed(1); }).join("L") + 'Z"/>'); });
+  C.cells.forEach(function(c, i){ var v = r.v[i], col = v == null ? null : r.kind === "ratio" ? divCol(v) : seqCol((Math.log(Math.max(v, 0.05)) - sc.lo) / (sc.hi - sc.lo));
+    out.push('<rect class="cell' + (v == null ? " na" : "") + '" data-i="' + i + '" x="' + px(c[2]).toFixed(1) + '" y="' + py(c[1] + 0.5).toFixed(1) + '" width="' + KX.toFixed(2) + '" height="' + (0.5 * KY).toFixed(2) + '"' + (col ? ' fill="' + col + '"' : "") + '/>'); });
+  C.land.forEach(function(ring){ out.push('<path class="coast" d="M' + ring.map(function(p){ return px(p[0]).toFixed(1) + " " + py(p[1]).toFixed(1); }).join("L") + 'Z"/>'); });
+  C.bands.forEach(function(b){ out.push('<line class="band" x1="0" x2="263" y1="' + py(b) + '" y2="' + py(b) + '"/>'); });
+  sv.innerHTML = out.join("");
+  var lg = document.getElementById("legend");
+  if (r.kind === "ratio") lg.innerHTML = '<span>¼×</span><i style="background:linear-gradient(90deg,' + divCol(-2) + ',' + divCol(0) + ',' + divCol(2) + ')"></i><span>4× typical</span>';
+  else lg.innerHTML = '<span>' + fmt(Math.exp(sc.lo)) + '</span><i style="background:linear-gradient(90deg,' + [0,.25,.5,.75,1].map(seqCol).join(",") + ')"></i><span>' + fmt(Math.exp(sc.hi)) + ' per 1000 visits</span>';
+  document.getElementById("slider").hidden = cur.mode !== "hist";
+  document.getElementById("seasonlbl").textContent = cur.season + "/" + String(cur.season + 1).slice(2); }
+function drawSide(){ var sp = D.species.filter(function(s){ return s.key === cur.sp; })[0];
+  document.getElementById("mtitle").textContent = sp.en; document.getElementById("msci").innerHTML = sp.key + "<span>· " + sp.no + "</span>";
+  var card = document.querySelector('.card[data-sp="' + sp.key + '"]'); document.getElementById("mrows").innerHTML = card ? card.querySelector(".rows").innerHTML : ""; document.getElementById("mspark").innerHTML = card ? card.querySelector(".spark").outerHTML : ""; }
+function drawTabs(){ document.getElementById("sptabs").innerHTML = D.species.map(function(s){ return '<button data-sp="' + s.key + '" class="' + (s.key === cur.sp ? "on" : "") + '">' + s.en + '</button>'; }).join("");
+  document.getElementById("modes").innerHTML = MODES.map(function(m){ return '<button data-mode="' + m[0] + '" class="' + (m[0] === cur.mode ? "on" : "") + '">' + m[1] + '</button>'; }).join(""); }
+document.getElementById("sptabs").addEventListener("click", function(e){ var b = e.target.closest("button"); if (!b) return; cur.sp = b.getAttribute("data-sp"); drawTabs(); drawMap(); drawSide(); });
+document.getElementById("modes").addEventListener("click", function(e){ var b = e.target.closest("button"); if (!b) return; cur.mode = b.getAttribute("data-mode"); drawTabs(); drawMap(); });
+document.getElementById("season").addEventListener("input", function(e){ cur.season = +e.target.value; drawMap(); });
+document.getElementById("map").addEventListener("mousemove", function(e){ var t = e.target.closest(".cell"); if (!t) return; var i = +t.getAttribute("data-i"), c = C.cells[i], sp = C.species[cur.sp], r = values(), v = r.v[i];
+  var txt = c[0] + " · " + c[1] + "–" + (c[1] + 0.5) + "°N, " + c[2] + "–" + (c[2] + 1) + "°E: ";
+  txt += v == null ? "too few visits" : (r.kind === "ratio" ? (Math.pow(2, v)).toFixed(2) + "× typical" : fmt(v) + " per 1000 visits");
+  if (sp.typ[i] != null) txt += " · typical " + fmt(sp.typ[i]); if (sp.last[i] != null) txt += " · last winter " + fmt(sp.last[i]); if (sp.out[i] != null) txt += " · outlook " + fmt(sp.out[i]);
+  document.getElementById("mread").textContent = txt; });
+fetch("data.json").then(function(r){ return r.json(); }).then(function(j){ C = j; drawTabs(); drawMap(); drawSide(); }).catch(function(e){ document.getElementById("mread").textContent = "Map data failed to load: " + e; });
 </script>
 </body>
 </html>
